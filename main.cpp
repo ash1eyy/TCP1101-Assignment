@@ -604,7 +604,7 @@ int main()
 
     displayBoard();
 
-    displayStats(totalZomb);
+    //displayStats(totalZomb);
 
     cout << endl;
     // cout << alien.getX() << " " << alien.getY();
