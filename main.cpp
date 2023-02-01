@@ -8,6 +8,8 @@
 // Phones:  0149322912                      | 0166703743
 // ********************************************************* 
 
+// TODO: Fill in the missing information above and delete this line.
+
 #include "pf/helper.h"
 #include <iostream>
 #include <string>
@@ -380,19 +382,13 @@ void Alien::move(Board &board, string cmd)
 //              MAIN code               //
 //                                      //
 
-char homepage()
+char confirmChange()
 {
-    Board board;
-
-    board.boardInfo();
-    
-    cout << "Zombie Count   : " << totalZomb << endl << endl;
-
-    char changeSettings {};
+    char confirmChange {};
     cout << "Do you wish to change the game settings (y/n)? => ";
-    cin >> changeSettings;
+    cin >> confirmChange;
 
-    return changeSettings;
+    return confirmChange;
 }
 
 //asks users to input num of rows, columns & zombies
@@ -450,7 +446,7 @@ void gameSettings()
         cout << "Enter number of zombies => ";
         cin >> numZombies;
 
-        if (numZombies < 0 || numZombies > 9)
+        if (numZombies < 1 || numZombies > 9)
         {
             cout << "Number of zombies must be between 1 to 9." << endl;
             continue;
@@ -548,6 +544,17 @@ void controls()
     // else if (command == "save")
     // else if (command == "load")
     // else if (command == "quit")
+    // {
+    //     char confirmQuit;
+    //     cout << "Are you sure? (y/n)";
+    //     cin << confirmQuit;
+    //     if (confirmQuit == 'y')
+    //         exit()
+    //     else if (choice == 'n')
+            
+    //     else 
+    //         cout << "Please enter a valid command.";
+    // }
     // else
     // {
     //     cout << "Please enter a valid command.";
@@ -581,22 +588,25 @@ int main()
     Alien alien;
     Zombie zombie;
 
-    char changeSettings = homepage();
+    board.boardInfo();
+    
+    cout << "Zombie Count   : " << totalZomb << endl << endl;
 
-    switch (changeSettings)
+    while(true)
     {
-        case 'y':
-        {
-            gameSettings();
+        char changeSettings = confirmChange();
+
+        if (changeSettings == 'y')
+            {
+                gameSettings();
+                break;
+            }
+        else if (changeSettings == 'n')
             break;
-        }
-        case 'n':
-        {
-            break;
-        }
-        default:
+        else;
         {
             cout << "Invalid input. Please enter y/n." << endl;
+            continue;
         }
     }
 
