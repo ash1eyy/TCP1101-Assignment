@@ -4,11 +4,11 @@ Alien vs Zombie is a turn-based combat game in which the player controls Alien t
 
 You may add one signature screenshot of your program here or above the title. Check out [this tutorial](https://www.digitalocean.com/community/tutorials/markdown-markdown-images) to learn how to do it.
 
-[Video Demo](https://youtube.com).
+[Video Demo](https://www.youtube.com/watch?v=05fASRKdF6k).
 
 ## Compilation Instructions
 
-g++ pf\*.cpp main.cpp
+g++ pf\\*.cpp main.cpp
 
 ## User Manual
 
