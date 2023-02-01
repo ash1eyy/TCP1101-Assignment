@@ -3,12 +3,10 @@
 // Year: Trimester 1, 2022/23 (T2215) 
 // Lab: TT8L 
 // Names:   ASHLEY SIM CI HUI               | CHIN SHUANG YING 
-// IDs:     1211101022                      | 
-// Emails:  1211101022@student.mmu.edu.my   | 
+// IDs:     1211101022                      | 1211102285
+// Emails:  1211101022@student.mmu.edu.my   | 1211102285@student.mmu.edu.my
 // Phones:  0149322912                      | 0166703743
 // ********************************************************* 
-
-// TODO: Fill in the missing information above and delete this line.
 
 #include "pf/helper.h"
 #include <iostream>
