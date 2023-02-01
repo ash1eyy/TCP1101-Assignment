@@ -27,7 +27,7 @@ List all the features not yet done. Remove this section if there is no incomplet
 
 ## Additional Features
 
-Describe the additional features that has been implemented.
+No additional features implemented so far.
 
 ## Contributions
 
