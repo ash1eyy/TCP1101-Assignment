@@ -48,17 +48,20 @@ List down the contribution of each group members.
 
 Describe the problems encountered and provide the solutions / plan for the solutions.
 
-PROBLEM:
-    Board could not be resized after user updated the board dimensions in settings.
-SOLUTION:
-    After some experimenting, we realized that this was because of the default values for the board dimensions in the Board class, which were set to 5 rows and 9 columns using the code Board(int dimX = 9, int dimY = 5);. The solution we came up with was to create a public defaultX & defaultY variable and setting them as the default values for the board. Then, the values stored by the variables would be changed to the value from the user input, thereby updating the X and Y dimensions of the board.
+PROBLEM 1:
+Board could not be resized after user updated the board dimensions in settings.
 
-PROBLEM:
-    Zombie(s) would not spawn in the board.
 SOLUTION:
-    Initially, we tried to spawn zombies in using a for loop in the init function of the Board class. We then realized that we had to create separate classes for both alien and zombie and spawn them in using functions in their respective classes. Thus, we created the Alien and Zombie classes as well as the spawnZombie and spawnAlien functions in each class respectively. Instead of a for loop, the spawnZombie and spawnAlien functions determine the x and y coordinates of alien & zombie and then use the setObject function in the Board class to place them in the board.
+After some experimenting, we realized that this was because of the default values for the board dimensions in the Board class, which were set to 5 rows and 9 columns using the code Board(int dimX = 9, int dimY = 5);. The solution we came up with was to create a public defaultX & defaultY variable and setting them as the default values for the board. Then, the values stored by the variables would be changed to the value from the user input, thereby updating the X and Y dimensions of the board.
 
-PROBLEM:
-    Alien would spawn off-center when there were more/less than 5 rows in the board.
+PROBLEM 2:
+Zombie(s) would not spawn in the board.
+
 SOLUTION:
-    We realized that the setObject function in the Board class was using the code map_[5 - y][x - 1] = ch; which only centers the alien when there are exactly 5 rows in the board. Thus, we had to adjust the code to map_[dimY_ - y][x - 1] = ch; so that it could calculate the correct coordinates to place the alien in.
+Initially, we tried to spawn zombies in using a for loop in the init function of the Board class. We then realized that we had to create separate classes for both alien and zombie and spawn them in using functions in their respective classes. Thus, we created the Alien and Zombie classes as well as the spawnZombie and spawnAlien functions in each class respectively. Instead of a for loop, the spawnZombie and spawnAlien functions determine the x and y coordinates of alien & zombie and then use the setObject function in the Board class to place them in the board.
+
+PROBLEM 3:
+Alien would spawn off-center when there were more/less than 5 rows in the board.
+
+SOLUTION:
+We realized that the setObject function in the Board class was using the code map_[5 - y][x - 1] = ch; which only centers the alien when there are exactly 5 rows in the board. Thus, we had to adjust the code to map_[dimY_ - y][x - 1] = ch; so that it could calculate the correct coordinates to place the alien in.
