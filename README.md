@@ -12,7 +12,9 @@ g++ pf\\*.cpp main.cpp
 
 ## User Manual
 
-Please provide the user manual on how to use your program.
+The user will control Alien, represented by A. The goal of the game is to maneuver around the board with the help of arrow objects to eliminate the Zombies, represented by unique numbers from 1-9. The user can control Alien's movements by typing either up, down, left, or right into the command line. Alien will inflict damage to Zombies when it collides with them. Alien will stop moving when it hits a rock, border, or hits a Zombie that survives the attack. The game ends when either Alien is defeated or all zombies are defeated. Alien and Zombies will take turns to move. Once a Zombie is defeated, its turn is skipped. 
+
+There are different objects that can be interacted with in-game. There are arrows, represented by ^, v, <, and >, that can change the direction in which Alien is moving. There are health packs, represented by h, which replenish Alien's health. There are pods, represented by p, which instantly inflict 10 damage to the closest Zombie when hit by Alien. There are rocks, represented by r, which hide a random game object (arrow, health, or pod) beneath it that are revealed when the rock is hit by Alien. 
 
 Please DO NOT change the Progress Log below. Leave it as it is.
 
