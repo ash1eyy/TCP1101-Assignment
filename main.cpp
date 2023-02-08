@@ -224,9 +224,10 @@ int Board::getDimY() const
     return dimY_;
 }
 
+// !! FIX !! can't properly detect objects in board
 char Board::getObject(int x, int y) const
 { 
-    return map_[defaultY - y][x - 1];
+    return map_[dimY_ - y][x - 1];
 }
 
 void Board::setObject(int x, int y, char ch)
@@ -289,18 +290,18 @@ bool Board::isInsideMap(int x, int y) const
 //                                      //
 
 int totalZomb {1};  //total number of zombies
-int zombLife {rand() % (200 - 100 + 1) + 100};
-int zombAtk {rand() % (5 - 1 + 1) + 1};
-int zombRange {rand() % (3 - 1 + 1) + 1};
 
 class Zombie
 {
 private:
     int x_, y_;                 //coordinates
-    int life_, atk_, range_;    //stats
+    //stats
+    int life_  = {rand() % (200 - 100 + 1) + 100};
+    int atk_   = {rand() % (5 - 1 + 1) + 1};
+    int range_ = {rand() % (3 - 1 + 1) + 1};
 
 public:
-    Zombie(int life = zombLife, int atk = zombAtk, int range = zombRange);
+    Zombie();
     void zombieInfo() const;
     void displayStats(int zombIndex) const;
     void spawnZombie(Board &board, char index);
@@ -309,7 +310,7 @@ public:
     void move();
 };
 
-Zombie::Zombie(int life, int atk, int range)
+Zombie::Zombie()
 {
 }
 
@@ -338,21 +339,24 @@ void Zombie::spawnZombie(Board &board, char index)
 class Alien
 {
 private:
-    int x_, y_;         //coordinates
-    int life_, atk_;    //stats
+    int x_, y_;                   //coordinates
+    int life_ = 100, atk_ = 0;    //stats
 
 public:
-    Alien(int life = 100, int atk = 0);
+    Alien(int coordX = 5, int coordY = 3);
     int getX() const;
     int getY() const;
     void displayStats() const;
     void spawnAlien(Board &board);
     void minusHealth();
     void addHealth();
-    void move(Board &board, string cmd);
+    void moveUp(Board &board);
+    void moveDown(Board &board);
+    void moveLeft(Board &board);
+    void moveRight(Board &board);
 };
 
-Alien::Alien(int life, int atk)
+Alien::Alien(int coordX, int coordY)
 {
     Board board;
     spawnAlien(board);
@@ -384,26 +388,54 @@ void Alien::spawnAlien(Board &board)
     board.setObject(x_, y_, 'A');
 }
 
-// !! FIX !! program literally just crashes after up/down/left/right???
-void Alien::move(Board &board, string cmd)
+void Alien::moveUp(Board &board)
 {
     Alien alien;
-    
+
     x_ = alien.getX();
     y_ = alien.getY();
-    board.setObject(x_, y_, ' ');
+    board.setObject(x_, y_, '.');
 
-    if (cmd == "up")
-        y_ = y_ + 1;
+    y_ = y_ + 1;
+    
+    board.setObject(x_, y_, 'A');
+}
 
-    else if (cmd == "right")
-        x_ = x_ + 1;
+void Alien::moveDown(Board &board)
+{
+    Alien alien;
 
-    else if (cmd == "left")
-        x_ = x_ - 1;
+    x_ = alien.getX();
+    y_ = alien.getY();
+    board.setObject(x_, y_, '.');
 
-    else if (cmd == "down")
-        y_ = y_ - 1;
+    y_ = y_ - 1;
+    
+    board.setObject(x_, y_, 'A');
+}
+
+void Alien::moveLeft(Board &board)
+{
+    Alien alien;
+
+    x_ = alien.getX();
+    y_ = alien.getY();
+    board.setObject(x_, y_, '.');
+
+    x_ = x_ - 1;
+    
+    board.setObject(x_, y_, 'A');
+}
+
+void Alien::moveRight(Board &board)
+{
+    Alien alien;
+
+    x_ = alien.getX();
+    y_ = alien.getY();
+    board.setObject(x_, y_, '.');
+
+    x_ = x_ + 1;
     
     board.setObject(x_, y_, 'A');
 }
@@ -456,146 +488,7 @@ void gameSettings()
     totalZomb = numZombies;
 
     cout << "Settings Updated." << endl;
-    cout << "Press any key to continue . . . "; // how to make it continue?
-}
-
-//responds to user commands
-void controls()
-{
-    Board board;
-    Alien alien;
-
-    alien.getX();
-    alien.getY();
-
-    string command;
-    cout << "<command> ";
-    cin >> command;
-
-    if (command == "up")
-    {
-        alien.move(board, command);
-        pf::Pause();
-    }
-
-    else if (command == "down")
-    {
-        alien.move(board, "down");
-        pf::Pause();
-    }
-
-    else if (command == "left")
-    {
-        alien.move(board, "left");
-        pf::Pause();
-    }
-
-    else if (command == "right")
-    {
-        alien.move(board, "left");
-        pf::Pause();
-    }
-
-    else if (command == "arrow")
-    {
-        int arrowX, arrowY;
-        cout << "Enter coordinates of the arrow object to switch." << endl;
-        
-        cout << "Row => ";
-        cin >> arrowY;
-
-        cout << "Column => ";
-        cin >> arrowX;
-        cout << endl;
-
-        // seems to be issue with getObject function
-        char objAtCoords = board.getObject(arrowX, arrowY);
-
-        // !! FIX !! tells user object is not an arrow even when it is
-        // check if object at coordinates is arrow or not
-        if (objAtCoords != ('^' || 'v' || '<' || '>'))
-            cout << "The object at this coordinate is not an arrow." << endl;
-        else
-        {
-            string arrowDir;
-            cout << "Enter direction to switch to. (up/down/left/right) => ";
-            cin >> arrowDir;
-
-            // translates user input into arrow char
-            char newArrow;
-            while (true)
-            {
-                if (arrowDir == "up")
-                {
-                    newArrow = '^';
-                    break;
-                }
-                else if (arrowDir == "down")
-                {
-                    newArrow = 'v';
-                    break;
-                }
-                else if (arrowDir == "left")
-                {
-                    newArrow = '<';
-                    break;
-                }
-                else if (arrowDir == "right")
-                {
-                    newArrow = '>';
-                    break;
-                }
-                else
-                {
-                    cout << "Invalid input. Please type either up/down/left/right.";
-                    continue;
-                }
-            }
-
-            // change the arrow direction
-            board.setObject(arrowX, arrowY, newArrow);
-        }
-
-        pf::Pause();
-    }
-
-    else if (command == "help")
-    {
-        cout << "up     - Alien to move up." << endl;
-        cout << "down   - Alien to move down." << endl;
-        cout << "left   - Alien to move left." << endl;
-        cout << "right  - Alien to move right." << endl;
-        cout << "arrow  - Switch the direction of an arrow object in the game board." << endl;
-        cout << "help   - List and describe the commands that the player can use in the game." << endl;
-        cout << "save   - Save the current game to a file." << endl;
-        cout << "load   - Load a saved game from a file." << endl;
-        cout << "quit   - Quit the game while still in play." << endl;
-
-        pf::Pause();
-    }
-
-    // !! ADD !! save feature
-    // else if (command == "save")
-    // !! ADD !! save feature
-    // else if (command == "load")
-    // !! FIX !! quit feature
-    // else if (command == "quit")
-    // {
-    //     char confirmQuit;
-    //     cout << "Are you sure? (y/n)";
-    //     cin << confirmQuit;
-    //     if (confirmQuit == 'y')
-    //         exit()
-    //     else if (choice == 'n')
-            
-    //     else 
-    //         cout << "Please enter a valid command.";
-    // }
-    else
-    {
-        cout << "Please enter a valid command." << endl;
-        pf::Pause();
-    }
+    cout << "Press any key to continue . . . ";
 }
 
 void displayStats(int totalZomb)
@@ -609,6 +502,164 @@ void displayStats(int totalZomb)
     for (int i = 1; i <= totalZomb; ++i)
     {
         zombie.displayStats(i);
+    }
+}
+
+//responds to user commands
+void controls()
+{    
+    Board board;
+    Zombie zombie;
+
+    //spawns zombies based on zombie count
+    //49 is the ascii code for '1'
+    for (int i = 49; i < totalZomb + 49; ++i)
+    {
+        char zombieNumb = i;
+        zombie.spawnZombie(board, zombieNumb);
+    }
+
+    Alien alien;
+    alien.spawnAlien(board);
+
+    while (true)
+    {
+        board.display();
+        displayStats(totalZomb);
+
+        cout << endl << endl;
+
+        string command;
+        cout << "<command> ";
+        cin >> command;
+
+        if (command == "up")
+        {
+            alien.moveUp(board);
+            // !! ADD !! check if any objects in front, if no, continue moving
+        }
+
+        else if (command == "down")
+        {
+            alien.moveDown(board);
+        }
+
+        else if (command == "left")
+        {
+            alien.moveLeft(board);
+        }
+
+        else if (command == "right")
+        {
+            alien.moveRight(board);
+        }
+
+        else if (command == "arrow")
+        {
+            int arrowX, arrowY;
+            cout << "Enter coordinates of the arrow object to switch." << endl;
+            
+            cout << "Row => ";
+            cin >> arrowY;
+
+            cout << "Column => ";
+            cin >> arrowX;
+            cout << endl;
+
+            // seems to be issue with getObject function
+            char objAtCoords = board.getObject(arrowX, arrowY);
+
+            // !! FIX !! tells user object is not an arrow even when it is
+            // check if object at coordinates is arrow or not
+            if (objAtCoords != ('^' || 'v' || '<' || '>'))
+                cout << "The object at this coordinate is not an arrow." << endl;
+            else
+            {
+                string arrowDir;
+                cout << "Enter direction to switch to. (up/down/left/right) => ";
+                cin >> arrowDir;
+
+                // translates user input into arrow char
+                char newArrow;
+                while (true)
+                {
+                    if (arrowDir == "up")
+                    {
+                        newArrow = '^';
+                        break;
+                    }
+                    else if (arrowDir == "down")
+                    {
+                        newArrow = 'v';
+                        break;
+                    }
+                    else if (arrowDir == "left")
+                    {
+                        newArrow = '<';
+                        break;
+                    }
+                    else if (arrowDir == "right")
+                    {
+                        newArrow = '>';
+                        break;
+                    }
+                    else
+                    {
+                        cout << "Invalid input. Please type either up/down/left/right.";
+                        continue;
+                    }
+                }
+
+                // change the arrow direction
+                board.setObject(arrowX, arrowY, newArrow);
+            }
+
+            pf::Pause();
+        }
+
+        else if (command == "help")
+        {
+            cout << "up     - Alien to move up." << endl;
+            cout << "down   - Alien to move down." << endl;
+            cout << "left   - Alien to move left." << endl;
+            cout << "right  - Alien to move right." << endl;
+            cout << "arrow  - Switch the direction of an arrow object in the game board." << endl;
+            cout << "help   - List and describe the commands that the player can use in the game." << endl;
+            cout << "save   - Save the current game to a file." << endl;
+            cout << "load   - Load a saved game from a file." << endl;
+            cout << "quit   - Quit the game while still in play." << endl;
+
+            pf::Pause();
+        }
+
+        // !! ADD !! save feature
+        // else if (command == "save")
+        // !! ADD !! save feature
+        // else if (command == "load")
+        
+        else if (command == "quit")
+        {
+            char confirmQuit;
+            cout << "Are you sure? (y/n) => ";
+            cin >> confirmQuit;
+
+            while (true)
+            {
+            if (confirmQuit == 'y')
+                exit(0);
+            else if (confirmQuit == 'n')
+                break;
+            else 
+                cout << "Please enter a valid command.";
+                continue;
+            }
+        }
+
+        else
+        {
+            cout << "Please enter a valid command." << endl;
+            pf::Pause();
+        }
     }
 }
 
@@ -645,28 +696,7 @@ int main()
     }
     
     Board board;
-    Alien alien;
-    Zombie zombie;
-    
-    alien.spawnAlien(board);
 
-    //spawns zombies based on zombie count
-    //49 is the ascii code for '1'
-    for (int i = 49; i < totalZomb + 49; ++i)
-    {
-        char zombieNumb = i;
-        zombie.spawnZombie(board, zombieNumb);
-    }
-
-    while(true)
-    {
-        board.display();
-
-        displayStats(totalZomb);
-
-        cout << endl << endl;
-
-        controls();
-        system("cls");
-    }
+    // !! FIX !! board does not update after alien moves
+    controls();
 }
