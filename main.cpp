@@ -36,8 +36,7 @@ public:
     Board(int dimX = defaultX, int dimY = defaultY);
 
     void init(int dimX, int dimY);
-    void boardInfo() const;
-    void updateBoard(int dimX, int dimY);
+    void updateBoard();
     void display() const;
     int getDimX() const;
     int getDimY() const;
@@ -166,22 +165,53 @@ void Board::display() const
          << endl;
 }
 
-//displays number of rows and columns in board
-void Board::boardInfo() const
+void Board::updateBoard()
 {
-    cout << "Default Game Settings" << endl;
-    cout << "---------------------" << endl;
-    cout << "Board Rows     : " << dimY_ << endl;
-    cout << "Board Columns  : " << dimX_ << endl;
-}
+    int numRows {};
+    int numColumns {};
 
-void Board::updateBoard(int dimX, int dimY)
-{
-    defaultX = dimX;
-    defaultY = dimY;
+    cout << "Board Settings" << endl;
+    cout << "--------------" << endl;
+    
+    //ask user for custom rows and columns
+    while (true)
+    {
+        cout << "Enter rows => ";
+        cin >> numRows;
 
-    dimX_ = dimX;
-    dimY_ = dimY;
+        //checks if num of rows is odd
+        if ((numRows % 2) != 0)
+            break;
+        else
+        {
+            cout << "Number of rows must be odd." << endl;
+            continue;
+        }
+    }
+
+    while (true)
+    {
+        cout << "Enter columns => ";
+        cin >> numColumns;
+
+        if ((numColumns % 2) != 0)
+            break;
+        else
+        {
+            cout << "Number of columns must be odd." << endl;
+            continue;
+        }
+    }
+
+    dimX_ = numColumns;
+    dimY_ = numRows;
+
+    defaultX = numColumns;
+    defaultY = numRows;
+
+    init(numColumns, numRows);
+
+    //dimX_ and dimY_ are changed here
 }
 
 int Board::getDimX() const
@@ -196,7 +226,7 @@ int Board::getDimY() const
 
 char Board::getObject(int x, int y) const
 { 
-    return map_[dimY_ - y][x - 1];
+    return map_[defaultY - y][x - 1];
 }
 
 void Board::setObject(int x, int y, char ch)
@@ -324,6 +354,8 @@ public:
 
 Alien::Alien(int life, int atk)
 {
+    Board board;
+    spawnAlien(board);
 }
 
 int Alien::getX() const
@@ -352,13 +384,14 @@ void Alien::spawnAlien(Board &board)
     board.setObject(x_, y_, 'A');
 }
 
+// !! FIX !! program literally just crashes after up/down/left/right???
 void Alien::move(Board &board, string cmd)
 {
     Alien alien;
     
-    alien.getX();
-    alien.getY();
-    board.setObject(x_,y_, ' ');
+    x_ = alien.getX();
+    y_ = alien.getY();
+    board.setObject(x_, y_, ' ');
 
     if (cmd == "up")
         y_ = y_ + 1;
@@ -393,43 +426,9 @@ void gameSettings()
 {
     Board board;
 
-    int numRows {};
-    int numColumns {};
+    board.updateBoard();
 
-    cout << "Board Settings" << endl;
-    cout << "--------------" << endl;
-    
-    //ask user for custom rows and columns
-    while (true)
-    {
-        cout << "Enter rows => ";
-        cin >> numRows;
-
-        //checks if num of rows is odd
-        if ((numRows % 2) != 0)
-            break;
-        else
-        {
-            cout << "Number of rows must be odd." << endl;
-            continue;
-        }
-    }
-
-    while (true)
-    {
-        cout << "Enter columns => ";
-        cin >> numColumns;
-
-        if ((numColumns % 2) != 0)
-            break;
-        else
-        {
-            cout << "Number of columns must be odd." << endl;
-            continue;
-        }
-    }
-
-    board.updateBoard(numColumns, numRows);
+    board.init(defaultX, defaultY);
 
     cout << endl;
 
@@ -460,16 +459,6 @@ void gameSettings()
     cout << "Press any key to continue . . . "; // how to make it continue?
 }
 
-//displays the game board, alien, zombies
-// void displayBoard()
-// {
-//     Board board;
-//     Alien alien;
-//     Zombie zombie;
-
-//     board.display();
-// }
-
 //responds to user commands
 void controls()
 {
@@ -479,11 +468,10 @@ void controls()
     alien.getX();
     alien.getY();
 
-    string command {};
+    string command;
     cout << "<command> ";
     cin >> command;
 
-    // !! FIX !! program literally just crashes after up/down/left/right???
     if (command == "up")
     {
         alien.move(board, command);
@@ -508,7 +496,6 @@ void controls()
         pf::Pause();
     }
 
-    // !! FIX !! tells user object is not an arrow even when it is
     else if (command == "arrow")
     {
         int arrowX, arrowY;
@@ -521,51 +508,50 @@ void controls()
         cin >> arrowX;
         cout << endl;
 
-        string arrowDir;
-        cout << "Enter direction to switch to. (up/down/left/right) => ";
-        cin >> arrowDir;
+        // seems to be issue with getObject function
+        char objAtCoords = board.getObject(arrowX, arrowY);
 
-        // translates user input into arrow char
-        char newArrow;
-        while (true)
-        {
-            if (arrowDir == "up")
-            {
-                newArrow = '^';
-                break;
-            }
-            else if (arrowDir == "down")
-            {
-                newArrow = 'v';
-                break;
-            }
-            else if (arrowDir == "left")
-            {
-                newArrow = '<';
-                break;
-            }
-            else if (arrowDir == "right")
-            {
-                newArrow = '>';
-                break;
-            }
-            else
-            {
-                cout << "Invalid input. Please type either up/down/left/right.";
-                continue;
-            }
-        }
-        
-        cout << board.getObject(arrowX, arrowY) << endl;
-
+        // !! FIX !! tells user object is not an arrow even when it is
         // check if object at coordinates is arrow or not
-        if (board.getObject(arrowX, arrowY) != '^' ||
-            board.getObject(arrowX, arrowY) != 'v' ||
-            board.getObject(arrowX, arrowY) != '<' ||
-            board.getObject(arrowX, arrowY) != '>')
+        if (objAtCoords != ('^' || 'v' || '<' || '>'))
             cout << "The object at this coordinate is not an arrow." << endl;
         else
         {
+            string arrowDir;
+            cout << "Enter direction to switch to. (up/down/left/right) => ";
+            cin >> arrowDir;
+
+            // translates user input into arrow char
+            char newArrow;
+            while (true)
+            {
+                if (arrowDir == "up")
+                {
+                    newArrow = '^';
+                    break;
+                }
+                else if (arrowDir == "down")
+                {
+                    newArrow = 'v';
+                    break;
+                }
+                else if (arrowDir == "left")
+                {
+                    newArrow = '<';
+                    break;
+                }
+                else if (arrowDir == "right")
+                {
+                    newArrow = '>';
+                    break;
+                }
+                else
+                {
+                    cout << "Invalid input. Please type either up/down/left/right.";
+                    continue;
+                }
+            }
+
             // change the arrow direction
             board.setObject(arrowX, arrowY, newArrow);
         }
@@ -634,16 +620,12 @@ int main()
     cout << "Let's Get Started!" << endl;
     pf::Pause();
 
-    Board board;
-    Alien alien;
-    Zombie zombie;
-
-    board.boardInfo();
-    
+    cout << "Default Game Settings" << endl;
+    cout << "---------------------" << endl;
+    cout << "Board Rows     : " << defaultY << endl;
+    cout << "Board Columns  : " << defaultX << endl;
     cout << "Zombie Count   : " << totalZomb << endl << endl;
-
-    // !! FIX !! can't change board dimensions anymore, likely caused by
-    //           board.display() on line 677
+    
     while(true)
     {
         char changeSettings = confirmChange();
@@ -661,6 +643,10 @@ int main()
             continue;
         }
     }
+    
+    Board board;
+    Alien alien;
+    Zombie zombie;
     
     alien.spawnAlien(board);
 
