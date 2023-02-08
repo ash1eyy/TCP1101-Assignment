@@ -299,7 +299,6 @@ int Zombie::initZombieStats(int life, int atk, int range)
 }
 
 //displays an individual zombie's stats (life, atk, range)
-//!! FIX !! zombie stats way too high
 void Zombie::displayStats(int zombIndex) const
 {
     cout << "Zombie " << zombIndex << " : ";
@@ -353,7 +352,6 @@ int Alien::getY() const
     return y_;
 }
 
-// !! FIX !! life and atk stats are way too high
 void Alien::displayStats() const
 {
     cout << "Alien    : ";
