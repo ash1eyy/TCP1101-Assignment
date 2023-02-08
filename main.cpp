@@ -269,11 +269,13 @@ class Zombie
 {
 private:
     int x_, y_;              // coordinates
-    int zomblife_, atk_, range_; // stats
+    int zomblife_[9];
+    int atk_[9];
+    int range_[9]; // stats
 
 public:
     Zombie(int life = zombLife, int atk = zombAtk, int range = zombRange);
-    int initZombieStats(int life, int atk, int range);
+    void initZombieStats(int life, int atk, int range);
     void zombieInfo() const;
     void displayStats(int zombIndex) const;
     void spawnZombie(Board &board, char index);
@@ -287,25 +289,26 @@ Zombie::Zombie(int life, int atk, int range)
     initZombieStats(life, atk, range);
 }
 
-int Zombie::initZombieStats(int life, int atk, int range)
+void Zombie::initZombieStats(int life, int atk, int range)
 {
     int possibleLife[] = {50, 100, 150, 200, 250};
-    zomblife_ = possibleLife[rand() % (5)];
-    zombLife = zomblife_;
     int possibleAtk[] = {10, 20, 30, 40, 50, 60};
-    atk_ = possibleAtk[rand() % (6)];
     int possibleRange[] = {1, 2, 3};
-    range_ = possibleRange[rand() % (3)];
-    return zomblife_, atk_, range_;
+    for (int i = 0; i < 9; ++ i)
+    {
+        zomblife_[i] = possibleLife[rand() % (5)];
+        atk_[i] = possibleAtk[rand() % (6)];
+        range_[i] = possibleRange[rand() % (3)];
+    }
 }
 
 // displays an individual zombie's stats (life, atk, range)
 void Zombie::displayStats(int zombIndex) const
 {
     cout << "Zombie " << zombIndex << " : ";
-    cout << "Life " << zomblife_ << ", ";
-    cout << "Attack " << atk_ << ", ";
-    cout << "Range " << range_ << endl;
+    cout << "Life " << zomblife_[zombIndex-1] << ", ";
+    cout << "Attack " << atk_[zombIndex-1] << ", ";
+    cout << "Range " << range_[zombIndex-1] << endl;
 }
 
 void Zombie::spawnZombie(Board &board, char index)
