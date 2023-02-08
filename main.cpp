@@ -10,7 +10,7 @@
 
 // TODO: Fill in the missing information above and delete this line.
 
-#include "pf/helper.h"
+#include "pf/helper.h""
 #include <iostream>
 #include <string>
 #include <vector>
@@ -198,7 +198,7 @@ int Board::getDimY() const
 
 char Board::getObject(int x, int y) const
 {
-    return map_[5 - y][x - 1];
+    return map_[dimY_ - y][x - 1];
 }
 
 void Board::setObject(int x, int y, char ch)
@@ -261,9 +261,9 @@ bool Board::isInsideMap(int x, int y) const
 //                                      //
 
 int totalZomb {1};  //total number of zombies
-int zombLife {};
-int zombAtk {};
-int zombRange {};
+int zombLife {100};
+int zombAtk {20};
+int zombRange {2};
 
 class Zombie
 {
@@ -273,6 +273,7 @@ private:
 
 public:
     Zombie(int life = zombLife, int atk = zombAtk, int range = zombRange);
+    int initZombieStats(int life, int atk, int range);
     void zombieInfo() const;
     void displayStats(int zombIndex) const;
     void spawnZombie(Board &board, char index);
@@ -283,6 +284,17 @@ public:
 
 Zombie::Zombie(int life, int atk, int range)
 {
+    initZombieStats (life, atk, range);
+}
+
+int Zombie::initZombieStats(int life, int atk, int range)
+{
+    int possibleLife[] = {50, 100, 150, 200, 250};
+    life_ = rand() % (5);
+    int possibleAtk[] = {10,20,30,40,50,60};
+    atk_ = rand() % (6);
+    int possibleRange[] = {1,2,3};
+    range_ = rand() % (3);
 }
 
 //displays an individual zombie's stats (life, atk, range)
@@ -326,6 +338,8 @@ public:
 
 Alien::Alien(int life, int atk)
 {
+    life_ = life;
+    atk_ = atk;
 }
 
 int Alien::getX() const
