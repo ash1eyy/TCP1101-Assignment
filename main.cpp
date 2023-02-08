@@ -10,7 +10,7 @@
 
 // TODO: Fill in the missing information above and delete this line.
 
-#include "pf/helper.h""
+#include "pf/helper.h"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -290,11 +290,12 @@ Zombie::Zombie(int life, int atk, int range)
 int Zombie::initZombieStats(int life, int atk, int range)
 {
     int possibleLife[] = {50, 100, 150, 200, 250};
-    life_ = rand() % (5);
+    life_ = possibleLife[rand() % (5)];
     int possibleAtk[] = {10,20,30,40,50,60};
-    atk_ = rand() % (6);
+    atk_ = possibleAtk[rand() % (6)];
     int possibleRange[] = {1,2,3};
-    range_ = rand() % (3);
+    range_ = possibleRange[rand() % (3)];
+    return life_ , atk_ , range_;
 }
 
 //displays an individual zombie's stats (life, atk, range)
@@ -626,7 +627,7 @@ int main()
 
     displayBoard();
 
-    //displayStats(totalZomb);
+    displayStats(totalZomb);
 
     cout << endl;
     // cout << alien.getX() << " " << alien.getY();
