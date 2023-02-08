@@ -1,12 +1,12 @@
-// ********************************************************* 
-// Course: TCP1101 PROGRAMMING FUNDAMENTALS 
-// Year: Trimester 1, 2022/23 (T2215) 
-// Lab: TT8L 
-// Names:   ASHLEY SIM CI HUI               | CHIN SHUANG YING 
+// *********************************************************
+// Course: TCP1101 PROGRAMMING FUNDAMENTALS
+// Year: Trimester 1, 2022/23 (T2215)
+// Lab: TT8L
+// Names:   ASHLEY SIM CI HUI               | CHIN SHUANG YING
 // IDs:     1211101022                      | 1211102285
 // Emails:  1211101022@student.mmu.edu.my   | 1211102285@student.mmu.edu.my
 // Phones:  0149322912                      | 0166703743
-// ********************************************************* 
+// *********************************************************
 
 // TODO: Fill in the missing information above and delete this line.
 
@@ -24,17 +24,17 @@ using namespace std;
 //              BOARD code              //
 //                                      //
 
-int defaultX {9};
-int defaultY {5};
+int defaultX{9};
+int defaultY{5};
 
 class Board
 {
 private:
     vector<vector<char>> map_;
-    int dimX_, dimY_; 
+    int dimX_, dimY_;
 
 public:
-    //default: 5 rows, 9 columns
+    // default: 5 rows, 9 columns
     Board(int dimX = defaultX, int dimY = defaultY);
 
     void init(int dimX, int dimY);
@@ -49,13 +49,13 @@ public:
     bool isInsideMap(int x, int y) const;
 };
 
-//initializes the board
+// initializes the board
 Board::Board(int dimX, int dimY)
 {
     init(dimX, dimY);
 }
 
-//creates the board and resizes it
+// creates the board and resizes it
 void Board::init(int dimX, int dimY)
 {
     dimX_ = dimX;
@@ -89,7 +89,7 @@ void Board::init(int dimX, int dimY)
     }
 }
 
-//displays board itself for gameplay
+// displays board itself for gameplay
 void Board::display() const
 {
     // comment this out during testing
@@ -110,7 +110,7 @@ void Board::display() const
             cout << " ";
         }
     }
-    else if (dimX_ <9)
+    else if (dimX_ < 9)
     {
         cout << ".: Alien vs Zombie :.";
     }
@@ -168,7 +168,7 @@ void Board::display() const
          << endl;
 }
 
-//displays number of rows and columns in board
+// displays number of rows and columns in board
 void Board::boardInfo() const
 {
     cout << "Default Game Settings" << endl;
@@ -206,7 +206,7 @@ void Board::setObject(int x, int y, char ch)
     map_[dimY_ - y][x - 1] = ch;
 }
 
-//locates coordinates of a specific object
+// locates coordinates of a specific object
 void locateCoordinates()
 {
     Board Board;
@@ -241,13 +241,13 @@ void locateCoordinates()
          << x5 << " and row " << y5 << endl;
 }
 
-//checks if a specific coordinate is empty or not
+// checks if a specific coordinate is empty or not
 bool Board::isEmpty(int x, int y) const
 {
-    return map_[dimY_ - y][x-1] == ' ';
+    return map_[dimY_ - y][x - 1] == ' ';
 }
 
-//checks if a specific coordinate is within the board range (?)
+// checks if a specific coordinate is within the board range (?)
 bool Board::isInsideMap(int x, int y) const
 {
     if ((0 < x) && (x <= dimX_) && (0 < y) && (y <= dimY_))
@@ -260,16 +260,16 @@ bool Board::isInsideMap(int x, int y) const
 //             ZOMBIE code              //
 //                                      //
 
-int totalZomb {1};  //total number of zombies
-int zombLife {100};
-int zombAtk {20};
-int zombRange {2};
+int totalZomb{1}; // total number of zombies
+int zombLife{100};
+int zombAtk{20};
+int zombRange{2};
 
 class Zombie
 {
 private:
-    int x_, y_;                 //coordinates
-    int life_, atk_, range_;    //stats
+    int x_, y_;              // coordinates
+    int zomblife_, atk_, range_; // stats
 
 public:
     Zombie(int life = zombLife, int atk = zombAtk, int range = zombRange);
@@ -284,25 +284,26 @@ public:
 
 Zombie::Zombie(int life, int atk, int range)
 {
-    initZombieStats (life, atk, range);
+    initZombieStats(life, atk, range);
 }
 
 int Zombie::initZombieStats(int life, int atk, int range)
 {
     int possibleLife[] = {50, 100, 150, 200, 250};
-    life_ = possibleLife[rand() % (5)];
-    int possibleAtk[] = {10,20,30,40,50,60};
+    zomblife_ = possibleLife[rand() % (5)];
+    zombLife = zomblife_;
+    int possibleAtk[] = {10, 20, 30, 40, 50, 60};
     atk_ = possibleAtk[rand() % (6)];
-    int possibleRange[] = {1,2,3};
+    int possibleRange[] = {1, 2, 3};
     range_ = possibleRange[rand() % (3)];
-    return life_ , atk_ , range_;
+    return zomblife_, atk_, range_;
 }
 
-//displays an individual zombie's stats (life, atk, range)
+// displays an individual zombie's stats (life, atk, range)
 void Zombie::displayStats(int zombIndex) const
 {
     cout << "Zombie " << zombIndex << " : ";
-    cout << "Life " << life_ << ", ";
+    cout << "Life " << zomblife_ << ", ";
     cout << "Attack " << atk_ << ", ";
     cout << "Range " << range_ << endl;
 }
@@ -319,11 +320,13 @@ void Zombie::spawnZombie(Board &board, char index)
 //              ALIEN code              //
 //                                      //
 
+int alienLife = {100};
+
 class Alien
 {
 private:
-    int x_, y_;         //coordinates
-    int life_, atk_;    //stats
+    int x_, y_;      // coordinates
+    int alienlife_, atk_; // stats
 
 public:
     Alien(int life = 100, int atk = 0);
@@ -338,7 +341,7 @@ public:
 
 Alien::Alien(int life, int atk)
 {
-    life_ = life;
+    alienlife_ = life;
     atk_ = atk;
 }
 
@@ -355,7 +358,7 @@ int Alien::getY() const
 void Alien::displayStats() const
 {
     cout << "Alien    : ";
-    cout << "Life " << life_ << ", ";
+    cout << "Life " << alienlife_ << ", ";
     cout << "Attack " << atk_;
 }
 
@@ -371,10 +374,10 @@ void Alien::spawnAlien(Board &board)
 void Alien::move(Board &board, string cmd)
 {
     Alien alien;
-    
+
     alien.getX();
     alien.getY();
-    board.setObject(x_,y_,' ');
+    board.setObject(x_, y_, ' ');
 
     if (cmd == "up")
         y_ = y_ + 1;
@@ -387,7 +390,7 @@ void Alien::move(Board &board, string cmd)
 
     else if (cmd == "down")
         y_ = y_ - 1;
-    
+
     // board.setObject(x_,y_,heading_);
 }
 
@@ -397,31 +400,31 @@ void Alien::move(Board &board, string cmd)
 
 char confirmChange()
 {
-    char confirmChange {};
+    char confirmChange{};
     cout << "Do you wish to change the game settings (y/n)? => ";
     cin >> confirmChange;
 
     return confirmChange;
 }
 
-//asks users to input num of rows, columns & zombies
+// asks users to input num of rows, columns & zombies
 void gameSettings()
 {
     Board board;
 
-    int numRows {};
-    int numColumns {};
+    int numRows{};
+    int numColumns{};
 
     cout << "Board Settings" << endl;
     cout << "--------------" << endl;
-    
-    //ask user for custom rows and columns
+
+    // ask user for custom rows and columns
     while (true)
     {
         cout << "Enter rows => ";
         cin >> numRows;
 
-        //checks if num of rows is odd
+        // checks if num of rows is odd
         if ((numRows % 2) != 0)
             break;
         else
@@ -449,7 +452,7 @@ void gameSettings()
 
     cout << endl;
 
-    int numZombies {};
+    int numZombies{};
 
     cout << "Zombie Settings" << endl;
     cout << "---------------" << endl;
@@ -468,7 +471,8 @@ void gameSettings()
             break;
     }
 
-    cout << endl << endl;
+    cout << endl
+         << endl;
 
     totalZomb = numZombies;
 
@@ -476,7 +480,7 @@ void gameSettings()
     cout << "Press any key to continue . . . "; // how to make it continue?
 }
 
-//displays the game board, alien, zombies
+// displays the game board, alien, zombies
 void displayBoard()
 {
     Board board;
@@ -485,8 +489,8 @@ void displayBoard()
 
     alien.spawnAlien(board);
 
-    //spawns zombies based on zombie count
-    //49 is the ascii code for '1'
+    // spawns zombies based on zombie count
+    // 49 is the ascii code for '1'
     for (int i = 49; i < totalZomb + 49; ++i)
     {
         char zombieNumb = i;
@@ -496,7 +500,7 @@ void displayBoard()
     board.display();
 }
 
-//responds to user commands
+// responds to user commands
 void controls()
 {
     Board board;
@@ -505,7 +509,7 @@ void controls()
     alien.getX();
     alien.getY();
 
-    string command {};
+    string command{};
     cout << "<command> ";
     cin >> command;
 
@@ -525,22 +529,49 @@ void controls()
 
     else if (command == "arrow")
     {
+        Board board;
         int arrowX, arrowY;
         cout << "Enter coordinates of the arrow object to switch." << endl;
-        
+
         cout << "Row => ";
         cin >> arrowY;
         cout << endl;
 
         cout << "Column => ";
         cin >> arrowX;
-        cout << endl << endl;
+        cout << endl
+             << endl;
 
         string arrowDir;
         cout << "Enter direction to switch to. (up/down/left/right)" << endl;
         cin >> arrowDir;
 
-        // !! ADD !! function for changing arrow direction
+        //function for changing arrow direction
+        if (board.isInsideMap(arrowX, arrowY) && (board.getObject(arrowX, arrowY) == '^' || board.getObject(arrowX, arrowY) == 'v' || board.getObject(arrowX, arrowY) == '<' || board.getObject(arrowX, arrowY) == '>'))
+        {
+            char arrow_heading;
+            if (arrowDir == "up")
+            {
+                arrow_heading = '^';
+            }
+            else if (arrowDir == "down")
+            {
+                arrow_heading = 'v';
+            }
+            else if (arrowDir == "left")
+            {
+                arrow_heading = '<';
+            }
+            else if (arrowDir == "right")
+            {
+                arrow_heading = '>';
+            }
+            board.setObject(arrowX, arrowY, arrow_heading);
+        }
+        else 
+        {
+            cout << "Please enter a valid coordinate of the arrow object to switch.";
+        }
     }
     else if (command == "help")
     {
@@ -564,8 +595,8 @@ void controls()
     //     if (confirmQuit == 'y')
     //         exit()
     //     else if (choice == 'n')
-            
-    //     else 
+
+    //     else
     //         cout << "Please enter a valid command.";
     // }
     // else
@@ -602,34 +633,38 @@ int main()
     Zombie zombie;
 
     board.boardInfo();
-    
-    cout << "Zombie Count   : " << totalZomb << endl << endl;
 
-    while(true)
+    cout << "Zombie Count   : " << totalZomb << endl
+         << endl;
+
+    while (true)
     {
         char changeSettings = confirmChange();
 
         if (changeSettings == 'y')
-            {
-                gameSettings();
-                break;
-            }
+        {
+            gameSettings();
+            break;
+        }
         else if (changeSettings == 'n')
             break;
-        else;
+        else
+            ;
         {
             cout << "Invalid input. Please enter y/n." << endl;
             continue;
         }
     }
 
-    displayBoard();
-
-    displayStats(totalZomb);
-
     cout << endl;
-    // cout << alien.getX() << " " << alien.getY();
+    //cout << alien.getX() << " " << alien.getY();
     // why is alien coordinates so weird???
 
-    controls();
+    while (zombLife != 0 && alienLife != 0)
+    {
+        displayBoard();
+        displayStats(totalZomb);
+        cout << endl;
+        controls();
+    }
 }
