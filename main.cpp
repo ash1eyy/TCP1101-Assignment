@@ -236,18 +236,24 @@ class Zombie
 private:
     int x_, y_; // coordinates
     int life_, atk_, range_; // stats
+    string direction_;
 
 public:
     Zombie(int life = 100, int atk = 5, int range = 1);
 
-    void init(int x, int y, int life, int atk, int range);
+    void init(int x, int y, int life, int atk, int range, string dir);
     int getX();
     int getY();
     int getLife();
     int getAtk();
     int getRange();
+    string getDir();
 
     void decreaseLife(int life);
+    
+    void move(Board&board, string dir, int index);
+    void changeDir(string dir);
+
     void displayStats();
     void spawnZombie(Board &board, char index);
 };
@@ -255,12 +261,13 @@ public:
 Zombie::Zombie(int life, int atk, int range) {
 }
 
-void Zombie::init(int x, int y, int life, int atk, int range) {
+void Zombie::init(int x, int y, int life, int atk, int range, string dir) {
     x_ = x;
     y_ = y;
     life_ = life;
     atk_ = atk;
     range_ = range;
+    direction_ = dir;
 }
 
 int Zombie::getX() {
@@ -283,8 +290,36 @@ int Zombie::getRange() {
     return range_;
 }
 
+string Zombie::getDir() {
+    return direction_;
+}
+
 void Zombie::decreaseLife(int life) {
     life_ -= life;
+}
+
+void Zombie::move(Board &board, string dir, int index) {
+    x_ = getX();
+    y_ = getY();
+    board.setObject(x_, y_, ' ');
+
+    direction_ = dir;
+    
+    if (direction_ == "up")
+        y_ += 1;
+    else if (direction_ == "down")
+        y_ -= 1;
+    else if (direction_ == "left")
+        x_ -= 1;
+    else if (direction_ == "right")
+        x_ += 1;
+
+    char zomb = index + 49;
+    board.setObject(x_, y_, zomb);
+}
+
+void Zombie::changeDir(string dir) {
+    direction_ = dir;
 }
 
 void Zombie::displayStats() {
@@ -1548,6 +1583,80 @@ void commands(string cmd, Board &board, Alien &alien, vector<Zombie> &zombies, i
     pf::Pause();
 }
 
+void zombieTurn(Board &board, Alien &alien, vector<Zombie> &zombies, int totalZomb, int turn) {
+    for (int i = 0; i < totalZomb; i++) {
+        if (i == turn)
+            cout << "-> ";
+        else
+            cout << "   ";
+
+        cout << "Zombie " << i + 1 << " : ";
+        zombies[i].displayStats();
+    }
+
+    string dir[4] = {"up", "down", "left", "right"};
+    bool validDir = false;
+
+    int zombX = zombies[turn].getX();
+    int zombY = zombies[turn].getY();
+
+    while (validDir == false) {
+        zombies[turn].changeDir(dir[rand() % 4]);
+
+        if (zombies[turn].getDir() == "up")
+            zombY += 1;
+        else if (zombies[turn].getDir() == "down")
+            zombY -= 1;
+        else if (zombies[turn].getDir() == "left")
+            zombX -= 1;
+        else if (zombies[turn].getDir() == "right")
+            zombX += 1;
+
+        if (board.isInsideMap(zombX, zombY) == true &&
+            board.getObject(zombX, zombY) != 'A') {
+            validDir = true;
+            break;
+        }
+        else
+            continue;
+    }
+
+    zombies[turn].move(board, zombies[turn].getDir(), turn);
+    
+    cout << "Zombie " << turn + 1 << " moves " << zombies[turn].getDir() << "." << endl;
+
+    pf::Pause();
+
+    board.display();
+
+    cout << "   ";
+    alien.displayStats();
+
+    for (int i = 0; i < totalZomb; i++) {
+        if (i == turn)
+            cout << "-> ";
+        else
+            cout << "   ";
+
+        cout << "Zombie " << i + 1 << " : ";
+        zombies[i].displayStats();
+    }
+
+    int alienDistance = abs(alien.getX() - zombies[turn].getX()) +
+                        abs(alien.getY() - zombies[turn].getY());
+
+    if (alienDistance <= zombies[turn].getRange()) {
+        alien.decreaseLife(zombies[turn].getAtk());
+        cout << "Zombie " << turn + 1 << " attacks Alien." << endl;
+        cout << "Alien receives a damage of " << zombies[turn].getAtk() << "." << endl;
+    }
+    else {
+        cout << "Zombie " << turn + 1 << " is unable to attack Alien." << endl;
+        cout << "Alien is too far." << endl;
+    }
+    pf::Pause();
+}
+
 int main()
 {
     // cout << "Assignment (Part 1)" << endl;
@@ -1574,7 +1683,7 @@ int main()
         int range = 1 + (rand() % (3 - 1 + 1));
 
         Zombie zombie;
-        zombie.init(x, y, life, atk, range);
+        zombie.init(x, y, life, atk, range, "up");
         zombies.push_back(zombie);
     }
 
@@ -1594,14 +1703,13 @@ int main()
     alien.spawnAlien(board);
 
     while (true) {
-        // !! ADD !! turn based
-
-
         board.display();
 
+        cout << "-> ";
         alien.displayStats();
 
         for (int i = 0; i < totalZomb; i++) {
+            cout << "   ";
             cout << "Zombie " << i + 1 << " : ";
             zombies[i].displayStats();
         }
@@ -1616,6 +1724,15 @@ int main()
         cin >> cmd;
 
         commands(cmd, board, alien, zombies, totalZomb);
+
+        for (int i = 0; i < totalZomb; i++) {
+            board.display();
+
+            cout << "   ";
+            alien.displayStats();
+
+            zombieTurn(board, alien, zombies, totalZomb, i);
+        }
     }
 
     cout << "Game Over!" << endl;
