@@ -1834,32 +1834,35 @@ void zombieturn(Board &board, Alien &alien, vector<Zombie> &zombies, int i)
     char dir[4] = {'^', 'v', '<', '>'};
     char zombDir = dir[rand() % 4];
 
+    int y = zombies[i].getY();
+    int x = zombies[i].getX();
+
     if (zombDir == '^')
     {
-        // change zombie y = y +1
+        board.setObject(zombies[i].getX(), zombies[i].getY(), ' ');
+        y = y + 1;
         // set zombie to new coordinate
-        // set zombie previous location ' '
         cout << "Zombie " << i+1 << " moves up." << endl;
     }
     else if (zombDir == 'v')
     {
-        // change zombie y = y -1;
+        board.setObject(zombies[i].getX(), zombies[i].getY(), ' ');
+        y = y - 1;
         // set zombie to new coordinate
-        // set zombie previous location ' '
         cout << "Zombie " << i+1 << " moves down." << endl;
     }
     else if (zombDir == '<')
     {
-        // change zombie x = x -1;
+        board.setObject(zombies[i].getX(), zombies[i].getY(), ' ');
+        x = x - 1;
         // set zombie to new coordinate
-        // set zombie previous location ' '
         cout << "Zombie " << i+1 << " moves left." << endl;
     }
     else if (zombDir == '>')
     {
-        // change zombie x = x+1;
+        board.setObject(zombies[i].getX(), zombies[i].getY(), ' ');
+        x = x + 1;
         // set zombie to new coordinate
-        // set zombie previous location ' '
         cout << "Zombie " << i+1 << " moves right." << endl;
     }
     pf::Pause();
