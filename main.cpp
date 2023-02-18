@@ -1916,6 +1916,16 @@ void zombieturn(Board &board, Alien &alien, vector<Zombie> &zombies, int i)
         alienLife = alienLife - zombies[i].getAtk();
         // FIX !!! change alien life
     }
+    else
+    {
+        cout << "Zombie " << i+1 << " is unable to attack Alien." << endl;
+        cout << "Alien is too far." << endl;
+    }
+    pf::Pause();
+    board.display();
+    alien.displayStats();
+    cout << "Zombie " << i + 1 << " : ";
+    zombies[i].displayStats();
 }
 int main()
 {
