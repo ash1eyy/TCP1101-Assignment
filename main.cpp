@@ -522,12 +522,12 @@ bool gameSettings() {
     cout << "Board Rows     : 5" << endl;
     cout << "Board Columns  : 9" << endl;
     cout << "Zombie Count   : 1" << endl << endl;
-
-    char confirmChange {};
-    cout << "Do you wish to change the game settings (y/n)? => ";
-    cin >> confirmChange;
     
     while(true) {
+        char confirmChange {};
+        cout << "Do you wish to change the game settings (y/n)? => ";
+        cin >> confirmChange;
+
         if (confirmChange == 'y') 
             return true;
         else if (confirmChange == 'n')
@@ -1509,6 +1509,7 @@ void commands(string cmd, Board &board, Alien &alien, vector<Zombie> &zombies, i
 
     else if (cmd == "arrow") {
         int arrowX, arrowY;
+        char newArrow;
         string arrowDir;
         cout << "Enter row, column, and direction: ";
         cin >> arrowY >> arrowX >> arrowDir;
@@ -1521,8 +1522,6 @@ void commands(string cmd, Board &board, Alien &alien, vector<Zombie> &zombies, i
             objAtCoords != '<' && objAtCoords != '>')
             cout << "The object at this coordinate is not an arrow." << endl;
         else {
-            char newArrow;
-
             while (true) {
                 if (arrowDir == "up") {
                     newArrow = '^';
@@ -1548,6 +1547,7 @@ void commands(string cmd, Board &board, Alien &alien, vector<Zombie> &zombies, i
             // change the arrow direction
             board.setObject(arrowX, arrowY, newArrow);
         }
+        cout << "Arrow " << objAtCoords << " is switched to " << newArrow << "." << endl;
     }
 
     else if (cmd == "help") {
@@ -1664,12 +1664,31 @@ void zombieTurn(Board &board, Alien &alien, vector<Zombie> &zombies, int totalZo
     if (alienDistance <= zombies[turn].getRange()) {
         alien.decreaseLife(zombies[turn].getAtk());
         cout << "Zombie " << turn + 1 << " attacks Alien." << endl;
-        cout << "Alien receives a damage of " << zombies[turn].getAtk() << "." << endl;
+        cout << "Alien receives a damage of " << zombies[turn].getAtk() << "." << endl << endl;
     }
     else {
         cout << "Zombie " << turn + 1 << " is unable to attack Alien." << endl;
-        cout << "Alien is too far." << endl;
+        cout << "Alien is too far." << endl << endl;
     }
+    pf::Pause();
+
+    board.display();
+
+    cout << "   ";
+    alien.displayStats();
+
+    for (int i = 0; i < totalZomb; i++) {
+        if (i == turn)
+            cout << "-> ";
+        else
+            cout << "   ";
+
+        cout << "Zombie " << i + 1 << " : ";
+        zombies[i].displayStats();
+    }
+    cout << endl;
+    
+    cout << "Zombie " << turn + 1 << "'s turn ends." << endl << endl;
     pf::Pause();
 }
 
@@ -1735,13 +1754,54 @@ int main()
         cout << alien.getX() << ", " << alien.getY() << endl;
         cout << alien.getDir() << endl;
 
+        while (true) {
         string cmd;
         cout << "<command> ";
         cin >> cmd;
 
-        commands(cmd, board, alien, zombies, totalZomb);
+        if (cmd == "arrow" || cmd == "help" || cmd == "save" ||
+            cmd == "load" || cmd == "quit") {
+            commands(cmd, board, alien, zombies, totalZomb);
+
+            board.display();
+
+            cout << "-> ";
+            alien.displayStats();
+
+            for (int i = 0; i < totalZomb; i++) {
+                cout << "   ";
+                cout << "Zombie " << i + 1 << " : ";
+                zombies[i].displayStats();
+            }
+
+            cout << endl;
+
+            continue;
+            }
+        else { //starts alien's turn
+            commands(cmd, board, alien, zombies, totalZomb);
+            break;
+        }
+
+        }
 
         resetTrail(board);
+
+        board.display();
+
+        cout << "-> ";
+        alien.displayStats();
+
+        for (int i = 0; i < totalZomb; i++) {
+            cout << "   ";
+            cout << "Zombie " << i + 1 << " : ";
+            zombies[i].displayStats();
+        }
+        cout << endl;
+
+        cout << "Alien's turn ends. The trail has been reset." << endl << endl;
+
+        pf::Pause();
 
         for (int i = 0; i < totalZomb; i++) {
             board.display();
