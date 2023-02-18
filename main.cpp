@@ -638,6 +638,19 @@ void reportObject (Alien &alien, char obj) {
     }
 }
 
+void resetTrail(Board &board) {
+    char objects[] = {' ', ' ', ' ', '^', 'v', '<', '>', 'h', 'p', 'r'};
+
+    for (int i = 1; i <= board.getDimX(); i++) {
+        for (int j = 1; j <= board.getDimY(); j++) {
+            if (board.getObject(i, j) == '.') {
+                int objIndex = rand() % sizeof(objects);
+                board.setObject(i, j, objects[objIndex]);
+            }
+        }
+    }
+}
+
 void commands(string cmd, Board &board, Alien &alien, vector<Zombie> &zombies, int totalZomb) {
     char objInFront;
 
@@ -1593,6 +1606,7 @@ void zombieTurn(Board &board, Alien &alien, vector<Zombie> &zombies, int totalZo
         cout << "Zombie " << i + 1 << " : ";
         zombies[i].displayStats();
     }
+    cout << endl;
 
     string dir[4] = {"up", "down", "left", "right"};
     bool validDir = false;
@@ -1612,6 +1626,7 @@ void zombieTurn(Board &board, Alien &alien, vector<Zombie> &zombies, int totalZo
         else if (zombies[turn].getDir() == "right")
             zombX += 1;
 
+        // !! ADD !! make zombie avoid other zombies
         if (board.isInsideMap(zombX, zombY) == true &&
             board.getObject(zombX, zombY) != 'A') {
             validDir = true;
@@ -1641,6 +1656,7 @@ void zombieTurn(Board &board, Alien &alien, vector<Zombie> &zombies, int totalZo
         cout << "Zombie " << i + 1 << " : ";
         zombies[i].displayStats();
     }
+    cout << endl;
 
     int alienDistance = abs(alien.getX() - zombies[turn].getX()) +
                         abs(alien.getY() - zombies[turn].getY());
@@ -1724,6 +1740,8 @@ int main()
         cin >> cmd;
 
         commands(cmd, board, alien, zombies, totalZomb);
+
+        resetTrail(board);
 
         for (int i = 0; i < totalZomb; i++) {
             board.display();
