@@ -1862,7 +1862,7 @@ void zombieturn(Board &board, Alien &alien, vector<Zombie> &zombies, int i)
     {
         board.setObject(zombies[i].getX(), zombies[i].getY(), ' ');
         x = x + 1;
-        board.setObject(x, y, i + 1 + 49);
+        board.setObject(x, y, i + 49);
         cout << "Zombie " << i + 1 << " moves right." << endl;
     }
     pf::Pause();
