@@ -1823,7 +1823,7 @@ void commands(string cmd, Board &board, Alien &alien, vector<Zombie> &zombies, i
     pf::Pause();
 }
 
-// FIX !!! zombie cannot attack
+// FIX !!! change zombie coordinate!!! it happens just like what the 
 void zombieturn(Board &board, Alien &alien, vector<Zombie> &zombies, int i)
 {
     board.display();
@@ -1837,28 +1837,36 @@ void zombieturn(Board &board, Alien &alien, vector<Zombie> &zombies, int i)
     int y = zombies[i].getY();
     int x = zombies[i].getX();
 
-    if (zombDir == '^')
+    if (zombDir == '^' 
+        && board.isInsideMap(zombies[i].getX(), zombies[i].getY() + 1) == true 
+        && board.getObject(x,y+1) != 'A' )
     {
         board.setObject(zombies[i].getX(), zombies[i].getY(), ' ');
         y = y + 1;
         board.setObject(x, y, i + 49);
         cout << "Zombie " << i + 1 << " moves up." << endl;
     }
-    else if (zombDir == 'v')
+    else if (zombDir == 'v' 
+    && board.isInsideMap(zombies[i].getX(), zombies[i].getY() - 1) == true
+    && board.getObject(x,y-1) != 'A')
     {
         board.setObject(zombies[i].getX(), zombies[i].getY(), ' ');
         y = y - 1;
         board.setObject(x ,y , i + 49);
         cout << "Zombie " << i + 1 << " moves down." << endl;
     }
-    else if (zombDir == '<')
+    else if (zombDir == '<' 
+    && board.isInsideMap(zombies[i].getX() - 1, zombies[i].getY()) == true
+    && board.getObject(x-1,y) != 'A')
     {
         board.setObject(zombies[i].getX(), zombies[i].getY(), ' ');
         x = x - 1;
         board.setObject(x, y, i + 49);
         cout << "Zombie " << i + 1 << " moves left." << endl;
     }
-    else if (zombDir == '>')
+    else if (zombDir == '>' 
+    && board.isInsideMap(zombies[i].getX() + 1, zombies[i].getY()) == true
+    && board.getObject(x+1,y) != 'A')
     {
         board.setObject(zombies[i].getX(), zombies[i].getY(), ' ');
         x = x + 1;
