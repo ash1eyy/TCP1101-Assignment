@@ -1841,28 +1841,28 @@ void zombieturn(Board &board, Alien &alien, vector<Zombie> &zombies, int i)
     {
         board.setObject(zombies[i].getX(), zombies[i].getY(), ' ');
         y = y + 1;
-        board.setObject(zombies[i].getX(), y, i + 1);
+        board.setObject(x, y, i + 49);
         cout << "Zombie " << i + 1 << " moves up." << endl;
     }
     else if (zombDir == 'v')
     {
         board.setObject(zombies[i].getX(), zombies[i].getY(), ' ');
         y = y - 1;
-        board.setObject(zombies[i].getX(), y, i + 1);
+        board.setObject(x ,y , i + 49);
         cout << "Zombie " << i + 1 << " moves down." << endl;
     }
     else if (zombDir == '<')
     {
         board.setObject(zombies[i].getX(), zombies[i].getY(), ' ');
         x = x - 1;
-        board.setObject(zombies[i].getX(), y, i + 1);
+        board.setObject(x, y, i + 49);
         cout << "Zombie " << i + 1 << " moves left." << endl;
     }
     else if (zombDir == '>')
     {
         board.setObject(zombies[i].getX(), zombies[i].getY(), ' ');
         x = x + 1;
-        board.setObject(zombies[i].getX(), y, i + 1);
+        board.setObject(x, y, i + 1 + 49);
         cout << "Zombie " << i + 1 << " moves right." << endl;
     }
     pf::Pause();
