@@ -1852,6 +1852,7 @@ void zombieturn(Board &board, Alien &alien, vector<Zombie> &zombies, int i)
             && board.getObject(x,y+1) != 56
             && board.getObject(x,y+1) != 57)
             validDir == true;
+            break;
         }
         else if (zombDir == 'v'&& board.isInsideMap(x, y - 1) == true)
         {
@@ -1866,6 +1867,7 @@ void zombieturn(Board &board, Alien &alien, vector<Zombie> &zombies, int i)
             && board.getObject(x,y-1) != 56
             && board.getObject(x,y-1) != 57)
             validDir == true;
+            break;
         }
         else if (zombDir == '<'&& board.isInsideMap(x-1, y) == true)
         {
@@ -1880,6 +1882,7 @@ void zombieturn(Board &board, Alien &alien, vector<Zombie> &zombies, int i)
             && board.getObject(x-1,y) != 56
             && board.getObject(x-1,y) != 57)
             validDir == true;
+            break;
         }
         else if (zombDir == '>'&& board.isInsideMap(x+1, y) == true)
         {
@@ -1894,6 +1897,7 @@ void zombieturn(Board &board, Alien &alien, vector<Zombie> &zombies, int i)
             && board.getObject(x+1,y) != 56
             && board.getObject(x+1,y) != 57)
             validDir == true;
+            break;
         }
     }
 
