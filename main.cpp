@@ -1871,17 +1871,33 @@ void zombieturn(Board &board, Alien &alien, vector<Zombie> &zombies, int i)
     //zombie try to attack the alien
     int alienX_ = alien.getX();
     int alienY_ = alien.getY();
-    //if coordinate x zombie[i] == alienX_
+    // if coordinate x zombie[i] == alienX_
     //      if (coordinate y zombie [i] - alienY_)<0
     //          int distance = (-)(coordinate y zombie[i] - alienY_)
     //          if ( distance <= range zombie [i] )
     //              life alien - atk zombie [i]
-    //else if coordinate y zombie[i] == alienY_
+    // else if coordinate y zombie[i] == alienY_
     //      if (coordinate x zombie [i] - alienX_)<0
     //          int distance = (-)(coordinate y zombie[i] - alienX_)
     //          if ( distance <= range zombie [i] )
     //              life alien - atk zombie [i]
-    // else coordinate y zombie[i] - alienY_
+    // else
+    //      int distanceX, distanceY, distance;
+    //      if (alienX > x coordinate zombie[i])
+    //          distanceX = alienX - x coordinate zombie[i]
+    //          if (alienY > y coordinate zombie[i])
+    //              distanceY = alienY - y coordinate zombie[i]
+    //          else 
+    //              distanceY = y coordinate zombie[i] - alienY
+    //      else 
+    //          distanceX = x coordinate zombie[i] - alienX
+    //          if (alienY > y coordinate zombie[i])
+    //              distanceY = alienY - y coordinate zombie[i]
+    //          else 
+    //              distanceY = y coordinate zombie[i] - alienY
+    //      distance = distanceX +distance Y;
+    //      if ( distance <= range zombie [i] )
+    //              life alien - atk zombie [i]
     //      
 }
 int main()
