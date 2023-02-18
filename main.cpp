@@ -528,17 +528,17 @@ void encounterZombie(Board &board, vector<Zombie> &zombies, Alien &alien, char o
         }
 }
 
-void encounterPod(Board &board, vector<Zombie> &zombies) {
+void encounterPod(Board &board, vector<Zombie> &zombies, int podX, int podY) {
     int distanceFromPod[zombies.size()];
 
     for (int i = 0; i < zombies.size(); i++) {
-        distanceFromPod[i] = zombies[i].getX() + zombies[i].getY();
+        distanceFromPod[i] = abs(zombies[i].getX() - podX) + abs(zombies[i].getY() - podY);
     }
 
     int smallestDistance = 100;
-    int smallestIndex;
+    int smallestIndex = 0;
 
-    for (int i = 0; i < sizeof(distanceFromPod); i++) {
+    for (int i = 0; i < zombies.size(); i++) {
         if (distanceFromPod[i] < smallestDistance) {
             smallestDistance = distanceFromPod[i];
             smallestIndex = i;
@@ -619,7 +619,7 @@ void commands(string cmd, Board &board, Alien &alien, vector<Zombie> &zombies, i
                     reportObject(alien, objInFront);
 
                     if (objInFront == 'p') {
-                        encounterPod(board, zombies);
+                        encounterPod(board, zombies, alien.getX(), alien.getY() + 1);
                     }
 
                     alien.move(board, alien.getDir());
@@ -803,6 +803,8 @@ void commands(string cmd, Board &board, Alien &alien, vector<Zombie> &zombies, i
                     reportObject(alien, objInFront);
                     
                     encounterZombie(board, zombies, alien, objInFront);
+
+                    int zombIndex = objInFront - 49;
                     
                     pf::Pause();
                     board.display();
@@ -812,7 +814,10 @@ void commands(string cmd, Board &board, Alien &alien, vector<Zombie> &zombies, i
                         zombies[i].displayStats();
                     }
 
-                    break;
+                    if (zombies[zombIndex].getLife() > 0)
+                        break;
+                    else if (zombies[zombIndex].getLife() == 0)
+                        continue;
                 }
             }
             if (board.isInsideMap(alien.getX(), alien.getY() + 1) == false)
@@ -830,7 +835,7 @@ void commands(string cmd, Board &board, Alien &alien, vector<Zombie> &zombies, i
                     reportObject(alien, objInFront);
 
                     if (objInFront == 'p') {
-                        encounterPod(board, zombies);
+                        encounterPod(board, zombies, alien.getX(), alien.getY() - 1);
                     }
 
                     alien.move(board, alien.getDir());
@@ -1041,7 +1046,7 @@ void commands(string cmd, Board &board, Alien &alien, vector<Zombie> &zombies, i
                     reportObject(alien, objInFront);
 
                     if (objInFront == 'p') {
-                        encounterPod(board, zombies);
+                        encounterPod(board, zombies, alien.getX() - 1, alien.getY());
                     }
 
                     alien.move(board, alien.getDir());
@@ -1252,7 +1257,7 @@ void commands(string cmd, Board &board, Alien &alien, vector<Zombie> &zombies, i
                     reportObject(alien, objInFront);
 
                     if (objInFront == 'p') {
-                        encounterPod(board, zombies);
+                        encounterPod(board, zombies, alien.getX() + 1, alien.getY());
                     }
 
                     alien.move(board, alien.getDir());
