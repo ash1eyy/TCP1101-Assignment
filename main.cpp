@@ -1823,7 +1823,7 @@ void commands(string cmd, Board &board, Alien &alien, vector<Zombie> &zombies, i
     pf::Pause();
 }
 
-// ADD !!! change zombie coordinate
+// FIX !!! zombie cannot attack
 void zombieturn(Board &board, Alien &alien, vector<Zombie> &zombies, int i)
 {
     board.display();
