@@ -744,7 +744,7 @@ void loadData(Board &board, Alien &alien, vector<Zombie> &zombies)
     fin.close();
 }
 
-//FIX !!! the programme crash
+// FIX !!! the programme crash
 void resetTrail(Board &board)
 {
     int dimX_ = board.getDimX();
@@ -756,10 +756,10 @@ void resetTrail(Board &board)
     {
         for (int j = 1; j <= dimX_; ++j)
         {
-            if (board.getObject(j,i) == '.')
+            if (board.getObject(j, i) == '.')
             {
                 int objNo = rand() % noOfObjects;
-                board.setObject(j,i,objects[objNo]);
+                board.setObject(j, i, objects[objNo]);
             }
         }
     }
@@ -1017,7 +1017,7 @@ void commands(string cmd, Board &board, Alien &alien, vector<Zombie> &zombies, i
                     zombies[i].displayStats();
                 }
                 cout << "Alien's turn ends. The trail is reset.";
-                //resetTrail(board);
+                // resetTrail(board);
                 break;
             }
         }
@@ -1841,29 +1841,29 @@ void zombieturn(Board &board, Alien &alien, vector<Zombie> &zombies, int i)
     {
         board.setObject(zombies[i].getX(), zombies[i].getY(), ' ');
         y = y + 1;
-        // set zombie to new coordinate
-        cout << "Zombie " << i+1 << " moves up." << endl;
+        board.setObject(zombies[i].getX(), y, i + 1);
+        cout << "Zombie " << i + 1 << " moves up." << endl;
     }
     else if (zombDir == 'v')
     {
         board.setObject(zombies[i].getX(), zombies[i].getY(), ' ');
         y = y - 1;
-        // set zombie to new coordinate
-        cout << "Zombie " << i+1 << " moves down." << endl;
+        board.setObject(zombies[i].getX(), y, i + 1);
+        cout << "Zombie " << i + 1 << " moves down." << endl;
     }
     else if (zombDir == '<')
     {
         board.setObject(zombies[i].getX(), zombies[i].getY(), ' ');
         x = x - 1;
-        // set zombie to new coordinate
-        cout << "Zombie " << i+1 << " moves left." << endl;
+        board.setObject(zombies[i].getX(), y, i + 1);
+        cout << "Zombie " << i + 1 << " moves left." << endl;
     }
     else if (zombDir == '>')
     {
         board.setObject(zombies[i].getX(), zombies[i].getY(), ' ');
         x = x + 1;
-        // set zombie to new coordinate
-        cout << "Zombie " << i+1 << " moves right." << endl;
+        board.setObject(zombies[i].getX(), y, i + 1);
+        cout << "Zombie " << i + 1 << " moves right." << endl;
     }
     pf::Pause();
     board.display();
@@ -1871,37 +1871,51 @@ void zombieturn(Board &board, Alien &alien, vector<Zombie> &zombies, int i)
     cout << "Zombie " << i + 1 << " : ";
     zombies[i].displayStats();
 
-    //FIX !!! zombie try to attack the alien
+    // FIX !!! zombie try to attack the alien
     int alienX_ = alien.getX();
     int alienY_ = alien.getY();
-    // if coordinate x zombie[i] == alienX_
-    //      if (coordinate y zombie [i] - alienY_)<0
-    //          int distance = (-)(coordinate y zombie[i] - alienY_)
-    //          if ( distance <= range zombie [i] )
-    //              life alien - atk zombie [i]
-    // else if coordinate y zombie[i] == alienY_
-    //      if (coordinate x zombie [i] - alienX_)<0
-    //          int distance = (-)(coordinate y zombie[i] - alienX_)
-    //          if ( distance <= range zombie [i] )
-    //              life alien - atk zombie [i]
-    // else
-    //      int distanceX, distanceY, distance;
-    //      if (alienX > x coordinate zombie[i])
-    //          distanceX = alienX - x coordinate zombie[i]
-    //          if (alienY > y coordinate zombie[i])
-    //              distanceY = alienY - y coordinate zombie[i]
-    //          else 
-    //              distanceY = y coordinate zombie[i] - alienY
-    //      else 
-    //          distanceX = x coordinate zombie[i] - alienX
-    //          if (alienY > y coordinate zombie[i])
-    //              distanceY = alienY - y coordinate zombie[i]
-    //          else 
-    //              distanceY = y coordinate zombie[i] - alienY
-    //      distance = distanceX +distance Y;
-    //      if ( distance <= range zombie [i] )
-    //              life alien - atk zombie [i]
-    //      
+    int distance;
+    if (alienX_ == zombies[i].getX())
+    {
+        if (zombies[i].getY() < alienY_)
+            distance = alienY_ - zombies[i].getY();
+        else if (zombies[i].getY() > alienY_)
+            distance = zombies[i].getY() - alienY_;
+    }
+    else if (alienY_ == zombies[i].getY())
+    {
+        if (zombies[i].getX() < alienX_)
+            distance = alienX_ - zombies[i].getX();
+        else if (zombies[i].getX() > alienX_)
+            distance = zombies[i].getX() - alienX_;
+    }
+    else
+    {
+        int distanceX, distanceY;
+        if (alienX_ > zombies[i].getX())
+        {
+            distanceX = alienX_ - zombies[i].getX();
+            if (zombies[i].getY() < alienY_)
+                distanceY = alienY_ - zombies[i].getY();
+            else if (zombies[i].getY() > alienY_)
+                distanceY = zombies[i].getY() - alienY_;
+        }
+        else 
+        {
+            distanceX = zombies[i].getX() - alienX_;
+            if (zombies[i].getY() < alienY_)
+                distanceY = alienY_ - zombies[i].getY();
+            else if (zombies[i].getY() > alienY_)
+                distanceY = zombies[i].getY() - alienY_;
+        }
+        distance = distanceX + distanceY ;
+    }
+    int alienLife = alien.getLife();
+    if (distance <= zombies[i].getRange())
+    {
+        alienLife = alienLife - zombies[i].getAtk();
+        // FIX !!! change alien life
+    }
 }
 int main()
 {
