@@ -1832,41 +1832,93 @@ void zombieturn(Board &board, Alien &alien, vector<Zombie> &zombies, int i)
     zombies[i].displayStats();
 
     char dir[4] = {'^', 'v', '<', '>'};
-    char zombDir = dir[rand() % 4];
-
+    bool validDir = false;
     int y = zombies[i].getY();
     int x = zombies[i].getX();
+    char zombDir;
+    while (validDir == false) 
+    {
+        zombDir = dir[rand() % 4];
+        if (zombDir == '^' && board.isInsideMap(x, y + 1) == true )
+        {
+            if (board.getObject(x,y+1) != 'A' 
+            && board.getObject(x,y+1) != 49
+            && board.getObject(x,y+1) != 50
+            && board.getObject(x,y+1) != 51
+            && board.getObject(x,y+1) != 52
+            && board.getObject(x,y+1) != 53
+            && board.getObject(x,y+1) != 54
+            && board.getObject(x,y+1) != 55
+            && board.getObject(x,y+1) != 56
+            && board.getObject(x,y+1) != 57)
+            validDir == true;
+        }
+        else if (zombDir == 'v'&& board.isInsideMap(x, y - 1) == true)
+        {
+            if (board.getObject(x,y-1) != 'A' 
+            && board.getObject(x,y-1) != 49
+            && board.getObject(x,y-1) != 50
+            && board.getObject(x,y-1) != 51
+            && board.getObject(x,y-1) != 52
+            && board.getObject(x,y-1) != 53
+            && board.getObject(x,y-1) != 54
+            && board.getObject(x,y-1) != 55
+            && board.getObject(x,y-1) != 56
+            && board.getObject(x,y-1) != 57)
+            validDir == true;
+        }
+        else if (zombDir == '<'&& board.isInsideMap(x-1, y) == true)
+        {
+            if (board.getObject(x-1,y) != 'A' 
+            && board.getObject(x-1,y) != 49
+            && board.getObject(x-1,y) != 50
+            && board.getObject(x-1,y) != 51
+            && board.getObject(x-1,y) != 52
+            && board.getObject(x-1,y) != 53
+            && board.getObject(x-1,y) != 54
+            && board.getObject(x-1,y) != 55
+            && board.getObject(x-1,y) != 56
+            && board.getObject(x-1,y) != 57)
+            validDir == true;
+        }
+        else if (zombDir == '>'&& board.isInsideMap(x+1, y) == true)
+        {
+            if (board.getObject(x+1,y) != 'A' 
+            && board.getObject(x+1,y) != 49
+            && board.getObject(x+1,y) != 50
+            && board.getObject(x+1,y) != 51
+            && board.getObject(x+1,y) != 52
+            && board.getObject(x+1,y) != 53
+            && board.getObject(x+1,y) != 54
+            && board.getObject(x+1,y) != 55
+            && board.getObject(x+1,y) != 56
+            && board.getObject(x+1,y) != 57)
+            validDir == true;
+        }
+    }
 
-    if (zombDir == '^' 
-        && board.isInsideMap(zombies[i].getX(), zombies[i].getY() + 1) == true 
-        && board.getObject(x,y+1) != 'A' )
+    if (zombDir == '^')
     {
         board.setObject(zombies[i].getX(), zombies[i].getY(), ' ');
         y = y + 1;
         board.setObject(x, y, i + 49);
         cout << "Zombie " << i + 1 << " moves up." << endl;
     }
-    else if (zombDir == 'v' 
-    && board.isInsideMap(zombies[i].getX(), zombies[i].getY() - 1) == true
-    && board.getObject(x,y-1) != 'A')
+    else if (zombDir == 'v')
     {
         board.setObject(zombies[i].getX(), zombies[i].getY(), ' ');
         y = y - 1;
         board.setObject(x ,y , i + 49);
         cout << "Zombie " << i + 1 << " moves down." << endl;
     }
-    else if (zombDir == '<' 
-    && board.isInsideMap(zombies[i].getX() - 1, zombies[i].getY()) == true
-    && board.getObject(x-1,y) != 'A')
+    else if (zombDir == '<')
     {
         board.setObject(zombies[i].getX(), zombies[i].getY(), ' ');
         x = x - 1;
         board.setObject(x, y, i + 49);
         cout << "Zombie " << i + 1 << " moves left." << endl;
     }
-    else if (zombDir == '>' 
-    && board.isInsideMap(zombies[i].getX() + 1, zombies[i].getY()) == true
-    && board.getObject(x+1,y) != 'A')
+    else if (zombDir == '>')
     {
         board.setObject(zombies[i].getX(), zombies[i].getY(), ' ');
         x = x + 1;
