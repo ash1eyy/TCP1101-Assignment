@@ -1868,7 +1868,7 @@ void zombieturn(Board &board, Alien &alien, vector<Zombie> &zombies, int i)
     cout << "Zombie " << i + 1 << " : ";
     zombies[i].displayStats();
 
-    //zombie try to attack the alien
+    //FIX !!! zombie try to attack the alien
     int alienX_ = alien.getX();
     int alienY_ = alien.getY();
     // if coordinate x zombie[i] == alienX_
