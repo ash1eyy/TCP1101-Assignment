@@ -24,7 +24,7 @@ List all the features completed.
 
 ## Additional Features
 
-A new game object bomb has been implemented. The game object bomb will be displayed as 'b' in the game board. The bomb will effect both alien's and zombie's life when they encounter the bomb. The bomb will deals 10 damage to the zombie or alien's life. Not only that, the bomb will also discard all nearby game objects in radius 1 step. 
+A new game object bomb has been implemented. The game object bomb will be displayed as 'b' in the game board. The bomb will effect both alien's and zombie's life when they encounter the bomb. The bomb will deals 10 damage to the zombie or alien's life and character within raidus 1 step. Not only that, the bomb will also discard all nearby game objects within radius 1 step. 
 
 ## Contributions
 
