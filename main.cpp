@@ -604,13 +604,13 @@ bool gameSettings() {
     cout << "Zombie Count   : 1" << endl << endl;
     
     while(true) {
-        char confirmChange {};
+        string confirmChange;
         cout << "Do you wish to change the game settings (y/n)? => ";
         cin >> confirmChange;
 
-        if (confirmChange == 'y') 
+        if (confirmChange == "y") 
             return true;
-        else if (confirmChange == 'n')
+        else if (confirmChange == "n")
             return false;
         else {
             cout << "Invalid input. Please enter y/n." << endl;
@@ -991,6 +991,7 @@ void saveFile(Board &board, Alien &alien, vector<Zombie> &zombies, int totalZomb
         }
     }
     fout << endl;
+
     // alien stats
     fout << alien.getX() << ' '
          << alien.getY() << ' '
@@ -1005,14 +1006,21 @@ void saveFile(Board &board, Alien &alien, vector<Zombie> &zombies, int totalZomb
     //     zombie2's x y life atk range
     fout << totalZomb << endl;
 
-    for (int i = 0; i < totalZomb; i++) {
+    for (int i = 0; i < totalZomb - 1; i++) {
         fout << zombies[i].getX() << ' '
              << zombies[i].getY() << ' '
              << zombies[i].getLife() << ' '
              << zombies[i].getAtk() << ' '
              << zombies[i].getRange() << ' '
-             << zombies[i].getDir() << endl;
+             << zombies[i].getDir() << '$' << endl;
     }
+
+    fout << zombies[totalZomb - 1].getX() << ' '
+         << zombies[totalZomb - 1].getY() << ' '
+         << zombies[totalZomb - 1].getLife() << ' '
+         << zombies[totalZomb - 1].getAtk() << ' '
+         << zombies[totalZomb - 1].getRange() << ' '
+         << zombies[totalZomb - 1].getDir();
 
     fout.close();
 
@@ -1022,13 +1030,23 @@ void saveFile(Board &board, Alien &alien, vector<Zombie> &zombies, int totalZomb
 int loadFile(Board &board, Alien &alien, vector<Zombie> &zombies, int totalZomb)
 {
     int totalSavedZomb = totalZomb;
-    char confirmSave;
+    string confirmSave;
 
-    cout << "Do you want to save the current game (y/n)? => ";
-    cin >> confirmSave;
+    while(true) {
+        cout << "Do you want to save the current game (y/n)? => ";
+        cin >> confirmSave;
 
-    if (confirmSave == 'y')
-        saveFile(board, alien, zombies, totalZomb);
+        if (confirmSave == "y") {
+            saveFile(board, alien, zombies, totalZomb);
+            break;
+        }
+        else if (confirmSave == "n")
+            break;
+        else {
+            cout << "Invalid input. Please enter a valid command." << endl;
+            continue;
+        }
+    }
 
     string loadFile;
     cout << "Enter the file name to load: ";
@@ -1064,19 +1082,17 @@ int loadFile(Board &board, Alien &alien, vector<Zombie> &zombies, int totalZomb)
 
             fin >> totalSavedZomb;
 
-            int zombX, zombY, zombLife, zombAtk, zombRange;
-            string zombDir;
-
             zombies.clear();
 
-            while (zombies.size() < totalSavedZomb + 1) {
+            for (int i = 0; i < totalSavedZomb; i++) {
+                int zombX, zombY, zombLife, zombAtk, zombRange;
+                string zombDir;
                 fin >> zombX >> zombY >> zombLife >> zombAtk >> zombRange;
                 getline(fin, zombDir, '$');
 
                 Zombie zombie;
                 zombie.init(zombX, zombY, zombLife, zombAtk, zombRange, zombDir);
                 zombies.push_back(zombie);
-                continue;
             }
         }
     }
@@ -1376,7 +1392,7 @@ int main()
 
         vector<Zombie> zombies;
 
-        //initializes firt zombie
+        //initializes first zombie
         int x     = rand() % (board.getDimX()) + 1;
         int y     = rand() % (board.getDimY()) + 1;
         int life  = 100 + (rand() % (150 - 100 + 1));
