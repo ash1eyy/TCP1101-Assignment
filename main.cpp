@@ -300,7 +300,10 @@ string Zombie::getDir() {
 }
 
 void Zombie::decreaseLife(int life) {
-    life_ -= life;
+    if (life > life_)
+        life_ = 0;
+    else
+        life_ -= life;
 }
 
 void Zombie::move(Board &board, string dir, int index) {
@@ -443,7 +446,10 @@ void Alien::increaseLife(int life) {
 }
 
 void Alien::decreaseLife(int life) {
-    life_ -= life;
+    if (life > life_)
+        life_ = 0;
+    else
+        life_ -= life;
 }
 
 void Alien::increaseAtk(int atk) {
@@ -893,6 +899,10 @@ void encounterBomb(Board &board, vector<Zombie> &zombies, Alien alien, int zombI
                 cout <<  " was discovered beneath the rock." << endl;
                 continue;
             }
+
+            case 'b':
+                continue;
+
             default:
                 continue;
             }
@@ -960,29 +970,32 @@ void resetTrail(Board &board) {
     }
 }
 
-void saveFile(Board &board, Alien &alien, vector<Zombie> &zombies, int totalZomb) {
+void saveFile(Board &board, Alien &alien, vector<Zombie> &zombies, int totalZomb)
+{
     string saveFile;
 
     cout << "Enter the file name to save the current game: ";
     cin >> saveFile;
-    
+
     ofstream fout(saveFile);
 
     // board dimensions
     fout << board.getDimX() << ' '
-         << board.getDimY() << endl;
+         << board.getDimY();
 
     // items in each coordinate
     // saved bottom to top, left to right
     for (int i = 1; i <= board.getDimX(); i++) {
         for (int j = 1; j <= board.getDimY(); j++) {
-            fout << board.getObject(i, j) << endl;
+            fout << board.getObject(i, j);
         }
     }
-
+    fout << endl;
     // alien stats
-    fout << alien.getLife() << ' '
-         << alien.getAtk() << ' '
+    fout << alien.getX() << ' '
+         << alien.getY() << ' '
+         << alien.getLife() << ' '
+         << alien.getAtk() << ' ' 
          << alien.getDir() << endl;
 
     // zombie stats
@@ -990,6 +1003,8 @@ void saveFile(Board &board, Alien &alien, vector<Zombie> &zombies, int totalZomb
     // ex. zombie1's x y life atk range
     //          then only
     //     zombie2's x y life atk range
+    fout << totalZomb << endl;
+
     for (int i = 0; i < totalZomb; i++) {
         fout << zombies[i].getX() << ' '
              << zombies[i].getY() << ' '
@@ -1004,7 +1019,9 @@ void saveFile(Board &board, Alien &alien, vector<Zombie> &zombies, int totalZomb
     cout << "Game Saved" << endl;
 }
 
-void loadFile(Board &board, Alien&alien, vector<Zombie> &zombies, int totalZomb) {
+int loadFile(Board &board, Alien &alien, vector<Zombie> &zombies, int totalZomb)
+{
+    int totalSavedZomb = totalZomb;
     char confirmSave;
 
     cout << "Do you want to save the current game (y/n)? => ";
@@ -1012,15 +1029,17 @@ void loadFile(Board &board, Alien&alien, vector<Zombie> &zombies, int totalZomb)
 
     if (confirmSave == 'y')
         saveFile(board, alien, zombies, totalZomb);
-    
+
     string loadFile;
     cout << "Enter the file name to load: ";
     cin >> loadFile;
 
     ifstream fin(loadFile);
 
-    if (fin.is_open()) {
-        while (fin.good()) {
+    if (fin.is_open())
+    {
+        while (fin.good())
+        {
             // reads board dimensions
             int dimX, dimY;
             fin >> dimX >> dimY;
@@ -1031,23 +1050,33 @@ void loadFile(Board &board, Alien&alien, vector<Zombie> &zombies, int totalZomb)
             for (int i = 1; i <= dimX; i++) {
                 for (int j = 1; j <= dimY; j++) {
                     char obj;
-                    fin >> obj;
+                    fin.get(obj);
                     board.setObject(i, j, obj);
                 }
             }
 
-            int alienLife, alienAtk, alienDir;
-            fin >> alienLife >> alienAtk >> alienDir;
+            int alienX, alienY, alienLife, alienAtk;
+            string alienDir;
+            fin >> alienX >> alienY >> alienLife >> alienAtk;
+            getline(fin, alienDir);
+
+            alien.init(alienX, alienY, alienLife, alienAtk, alienDir);
+
+            fin >> totalSavedZomb;
 
             int zombX, zombY, zombLife, zombAtk, zombRange;
             string zombDir;
-            for (int i = 0; i < totalZomb; i++) {
+
+            zombies.clear();
+
+            while (zombies.size() < totalSavedZomb + 1) {
                 fin >> zombX >> zombY >> zombLife >> zombAtk >> zombRange;
                 getline(fin, zombDir, '$');
 
                 Zombie zombie;
                 zombie.init(zombX, zombY, zombLife, zombAtk, zombRange, zombDir);
                 zombies.push_back(zombie);
+                continue;
             }
         }
     }
@@ -1055,6 +1084,8 @@ void loadFile(Board &board, Alien&alien, vector<Zombie> &zombies, int totalZomb)
         cout << "Failed to open file." << endl;
 
     fin.close();
+
+    return totalSavedZomb;
 }
 
 void commands(string cmd, Board &board, Alien &alien, vector<Zombie> &zombies, int totalZomb) {
@@ -1204,11 +1235,7 @@ void commands(string cmd, Board &board, Alien &alien, vector<Zombie> &zombies, i
     // !! ADD !! save function
     else if (cmd == "save") {
         saveFile(board, alien, zombies, totalZomb);
-    }
-
-    // !! ADD !! load function
-    else if (cmd == "load") {
-        loadFile(board, alien, zombies, totalZomb);
+        pf::Pause();
     }
 
     else if (cmd == "quit") {
@@ -1400,8 +1427,9 @@ int main()
 
         int alienX = (board.getDimX() + 1) / 2;
         int alienY = (board.getDimY() + 1) / 2;
+        int alienLife = 100 + (rand() % (150 - 100 + 1));
 
-        alien.init(alienX, alienY, 100, 150, "up");
+        alien.init(alienX, alienY, alienLife, 0, "up");
         alien.spawnAlien(board);
 
         //start of alien's turn
@@ -1416,16 +1444,27 @@ int main()
                 cout << "<command> ";
                 cin >> cmd;
 
-                if (cmd != "up" && cmd != "down" &&
-                    cmd != "left" && cmd != "right") {
+                if (cmd == "load") {
+                    totalZomb = loadFile(board, alien, zombies, totalZomb);
+                    pf::Pause();
+
+                    displayAllStats(board, alien, zombies, totalZomb);
+                    cout << endl;
+
+                    continue;
+                }
+
+                else if (cmd != "up" && cmd != "down" &&
+                         cmd != "left" && cmd != "right") {
+
                     commands(cmd, board, alien, zombies, totalZomb);
 
                     displayAllStats(board, alien, zombies, totalZomb);
-
                     cout << endl;
 
                     continue;
                     }
+
                 else {
                     commands(cmd, board, alien, zombies, totalZomb);
                     break;
