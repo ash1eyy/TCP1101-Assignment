@@ -364,7 +364,7 @@ char Zombie::getObjInFront(Board &board) {
 }
 
 void Zombie::displayStats() {
-    cout << x_ << ", " << y_ << ", " << "Life " << life_ << ", Attack " << atk_ << ", Range " << range_ << endl;
+    cout << "Life " << life_ << ", Attack " << atk_ << ", Range " << range_ << endl;
 }
 
 void Zombie::spawnZombie(Board &board, char index) {
@@ -1248,7 +1248,7 @@ int main()
         int alienX = (board.getDimX() + 1) / 2;
         int alienY = (board.getDimY() + 1) / 2;
 
-        alien.init(alienX, alienY, 100, 0, "up");
+        alien.init(alienX, alienY, 100, 150, "up");
         alien.spawnAlien(board);
 
         //start of alien's turn
@@ -1284,22 +1284,20 @@ int main()
             alien.decreaseAtk(alien.getAtk());
             cout << endl << "Alien's turn ends. The trail has been reset." << endl << endl;
 
-            pf::Pause();
-            displayAllStats(board, alien, zombies, totalZomb);
-
-            int totalZombLife;
+            int totalZombLife = 0;
 
             for (int i = 0; i < totalZomb; i++) {
                 totalZombLife += zombies[i].getLife();
             }
-
-            cout << totalZombLife << endl;
 
             if (totalZombLife == 0) {
                 displayAllStats(board, alien, zombies, totalZomb);
                 cout << endl << "Alien wins." << endl;
                 break;
             }
+            
+            pf::Pause();
+            displayAllStats(board, alien, zombies, totalZomb);
 
             //start of zombie's turn
             for (int i = 0; i < totalZomb; i++) {
