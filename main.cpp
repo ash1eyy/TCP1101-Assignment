@@ -1265,7 +1265,6 @@ void zombieTurn(Board &board, Alien &alien, vector<Zombie> &zombies, int totalZo
             zombies[turn].getObjInFront(board) != '8' &&
             zombies[turn].getObjInFront(board) != '9') {
 
-            cout << zombies[turn].getObjInFront(board) << endl;
             validDir = true;
             break;
         }
@@ -1274,13 +1273,16 @@ void zombieTurn(Board &board, Alien &alien, vector<Zombie> &zombies, int totalZo
     }
 
     if (zombies[turn].getObjInFront(board) == 'b') {
+        zombies[turn].move(board, zombies[turn].getDir(), turn);
+        cout << "Zombie " << turn + 1 << " moves " << zombies[turn].getDir() << "." << endl << endl;
+
         encounterBomb(board, zombies, alien, turn, "zombie");
     }
-
-    zombies[turn].move(board, zombies[turn].getDir(), turn);
+    else {
+        zombies[turn].move(board, zombies[turn].getDir(), turn);
+        cout << "Zombie " << turn + 1 << " moves " << zombies[turn].getDir() << "." << endl << endl;
+    }
     
-    cout << "Zombie " << turn + 1 << " moves " << zombies[turn].getDir() << "." << endl << endl;
-
     pf::Pause();
 
     board.display();
