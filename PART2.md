@@ -14,7 +14,13 @@ List all the features completed.
 2. Spawn game objects randomly in board
 3. Allow user to adjust board dimensions & number of zombies
 4. Spawn alien & zombie in the board, with alien being in the center
-5. 
+5. Initialiaze alien and zombies' states.
+6. Aliens movement and attack.
+7. Zombies' movement and attack.
+8. Aliens interaction with game objects.
+9. Game controls.
+10. Save and load game file.
+11. Game flow.
 
 ## Additional Features
 
@@ -32,7 +38,7 @@ List down the contribution of each group members.
 4. Randomly initialize alien and zombies states.
 5. Alien's movement.
 6. Alien encounter game object.
-7. Game controls.
+7. Game controls and game flow.
 8. Additional features : bomb object.
 
 ### Chin Shuang Ying
