@@ -10,42 +10,46 @@ Please provide the YouTube link to your [Video Demo](https://youtube.com).
 
 List all the features completed.
 
-1. Cool Feature #1
-2. Cool Feature #2
-3. *add more*
-
-### To Do
-
-List all the features not yet done. Remove this section if there is no incomplete requirements.
-
-1. Cool Feature #1
-2. *add more*
+1. Generate game board with rows & column numbers displayed correctly
+2. Spawn game objects randomly in board
+3. Allow user to adjust board dimensions & number of zombies
+4. Spawn alien & zombie in the board, with alien being in the center
+5. 
 
 ## Additional Features
 
-Describe the additional features that has been implemented.
+A new game object bomb has been implemented. The game object bomb will be displayed as 'b' in the game board. The bomb will effect both alien's and zombie's life when they encounter the bomb. The bomb will deals 10 damage to the zombie or alien's life. Not only that, the bomb will also discard all nearby game objects in radius 1 step. 
 
 ## Contributions
 
 List down the contribution of each group members.
 
-For example:
-
-### Tony Stark
+### Ashley Sim Ci Hui
 
 1. Randomly generate game board.
-2. *add more*
+2. Allow user to adjust board dimensions & number of zombies.
+3. Spawn alien in the center of board.
+4. Randomly initialize alien and zombies states.
+5. Alien's movement.
+6. Alien encounter game object.
+7. Game controls.
+8. Additional features : bomb object.
 
-### Steve Rogers
+### Chin Shuang Ying
 
-1. Zombie movement and attack behaviour.
-2. *add more*
-
-### Dr. Strange
-
-1. Implement all game objects.
-2. *add more*
+1. Spawn game objects randomly in board
+2. Spawn zombies in board
+3. Aliens trail reset after Alien's turn.
+4. Zombies movement.
+5. save, load and quit function.
 
 ## Problems Encountered & Solutions
 
 Describe the problems encountered and provide the solutions / plan for the solutions.
+
+PROBLEM 1 : 
+SOLUTION : 
+PROBLEM 2 : 
+SOLUTION : 
+PROBLEM 3 : 
+SOLUTION : 
