@@ -59,7 +59,7 @@ void Board::init(int dimX, int dimY) {
     // h - health
     // p - pod
     // r - rock
-    char objects[] = {' ', ' ', ' ', '^', 'v', '<', '>', 'h', 'p', 'r'};
+    char objects[] = {' ', ' ', '^', 'v', '<', '>', 'h', 'p', 'r', 'b'};
     int noOfObjects = 10; // number of objects in the objects array
 
     // create dynamic 2D array using vector
@@ -678,8 +678,6 @@ void encounterArrow(Board &board, Alien&alien, vector<Zombie> zombies, int total
 }
 
 void encounterPod(Board &board, vector<Zombie> &zombies, Alien alien, int totalZomb) {
-    //alien.move(board, alien.getDir());
-
     int podX = alien.getX();
     int podY = alien.getY();
     
@@ -713,8 +711,8 @@ void encounterPod(Board &board, vector<Zombie> &zombies, Alien alien, int totalZ
 void encounterRock(Board &board, Alien &alien) {
     string alienDir = alien.getDir();
 
-    char underRock[] = {' ', '^', 'v', '<', '>', 'h', 'p'};
-    char objUnderRock = underRock[rand() % 6];
+    char underRock[] = {' ', '^', 'v', '<', '>', 'h', 'p', 'b'};
+    char objUnderRock = underRock[rand() % 7];
 
     int rockX = alien.getX();
     int rockY = alien.getY();
@@ -735,7 +733,7 @@ void encounterRock(Board &board, Alien &alien) {
     switch (objUnderRock)
     {
     case ' ':
-        cout << "n empty space" << endl;
+        cout << "n empty space";
         break;
     
     case '^':
@@ -759,11 +757,147 @@ void encounterRock(Board &board, Alien &alien) {
         break;
 
     case 'p':
-        cout << " a pod";
+        cout << " pod";
+        break;
+
+    case 'b':
+        cout << " bomb";
         break;
     }
 
-    cout <<  " beneath the rock." << endl << endl;
+    cout <<  " beneath the rock." << endl;
+}
+
+void encounterBomb(Board &board, vector<Zombie> &zombies, Alien alien, int zombIndex, string trigger) {
+    int bombX, bombY;
+
+    if (trigger == "alien") {
+        bombX = alien.getX();
+        bombY = alien.getY();
+    }
+    else if (trigger == "zombie") {
+        bombX = zombies[zombIndex].getX();
+        bombY = zombies[zombIndex].getY();
+    }
+
+    for (int i = bombX - 1; i < bombX + 2; i++) {
+        for (int j = bombY - 1; j < bombY + 2; j++) {
+            if (board.isInsideMap(i, j) == false)
+                continue;
+
+            switch (board.getObject(i, j))
+            {
+            case 'A':
+                alien.decreaseLife(10);
+                cout << "Alien takes 10 damage." << endl;
+                continue;
+
+            case '1':
+                zombies[0].decreaseLife(10);
+                cout << "Zombie 1 takes 10 damage." << endl;
+                continue;
+            case '2':
+                zombies[1].decreaseLife(10);
+                cout << "Zombie 2 takes 10 damage." << endl;
+                continue;
+            case '3':
+                zombies[2].decreaseLife(10);
+                cout << "Zombie 3 takes 10 damage." << endl;
+                continue;
+            case '4':
+                zombies[3].decreaseLife(10);
+                cout << "Zombie 4 takes 10 damage." << endl;
+                continue;
+            case '5':
+                zombies[4].decreaseLife(10);
+                cout << "Zombie 5 takes 10 damage." << endl;
+                continue;
+            case '6':
+                zombies[5].decreaseLife(10);
+                cout << "Zombie 6 takes 10 damage." << endl;
+                continue;
+            case '7':
+                zombies[6].decreaseLife(10);
+                cout << "Zombie 7 takes 10 damage." << endl;
+                continue;
+            case '8':
+                zombies[7].decreaseLife(10);
+                cout << "Zombie 8 takes 10 damage." << endl;
+                continue;
+            case '9':
+                zombies[8].decreaseLife(10);
+                cout << "Zombie 9 takes 10 damage." << endl;
+                continue;
+
+            case '^':
+                board.setObject(i, j, ' ');
+                continue;
+            case 'v':
+                board.setObject(i, j, ' ');
+                continue;
+            case '<':
+                board.setObject(i, j, ' ');
+                continue;
+            case '>':
+                board.setObject(i, j, ' ');
+                continue;
+            case 'h':
+                board.setObject(i, j, ' ');
+                continue;
+            case 'p':
+                board.setObject(i, j, ' ');
+                continue;
+
+            case 'r': {
+                char underRock[] = {' ', '^', 'v', '<', '>', 'h', 'p', 'b'};
+                char objUnderRock = underRock[rand() % 7];
+                board.setObject(i, j, objUnderRock);
+
+                cout << "A rock was blown up." << endl;
+                cout << "A";
+
+                switch (objUnderRock)
+                {
+                case ' ':
+                    cout << "n empty space";
+                    break;
+                
+                case '^':
+                    cout << "n arrow";
+                    break;
+                    
+                case 'v':
+                    cout << "n arrow";
+                    break;
+
+                case '<':
+                    cout << "n arrow";
+                    break;
+                    
+                case '>':
+                    cout << "n arrow";
+                    break;
+
+                case 'h':
+                    cout << " health pack";
+                    break;
+
+                case 'p':
+                    cout << " pod";
+                    break;
+
+                case 'b':
+                    cout << " bomb";
+                    break;
+                }
+                cout <<  " was discovered beneath the rock." << endl;
+                continue;
+            }
+            default:
+                continue;
+            }
+        }
+    }
 }
 
 void reportObject (Alien &alien, char obj) {
@@ -806,11 +940,15 @@ void reportObject (Alien &alien, char obj) {
     case 'r':
         cout << "Alien stumbles upon a rock." << endl;
         break;
+
+    case 'b':
+        cout << "Alien finds a bomb." << endl;
+        break;
     }
 }
 
 void resetTrail(Board &board) {
-    char objects[] = {' ', ' ', ' ', '^', 'v', '<', '>', 'h', 'p', 'r'};
+    char objects[] = {' ', ' ', '^', 'v', '<', '>', 'h', 'p', 'r', 'b'};
 
     for (int i = 1; i <= board.getDimX(); i++) {
         for (int j = 1; j <= board.getDimY(); j++) {
@@ -951,6 +1089,7 @@ void commands(string cmd, Board &board, Alien &alien, vector<Zombie> &zombies, i
             else if (alien.getObjInFront(board) == 'p') {
                 alien.move(board, alien.getDir());
                 encounterPod(board, zombies, alien, totalZomb);
+
                 pf::Pause();
                 displayAllStats(board, alien, zombies, totalZomb);
                 continue;
@@ -959,6 +1098,15 @@ void commands(string cmd, Board &board, Alien &alien, vector<Zombie> &zombies, i
             else if (alien.getObjInFront(board) == 'r') {
                 encounterRock(board, alien);
                 break;
+            }
+
+            else if (alien.getObjInFront(board) == 'b') {
+                alien.move(board, alien.getDir());
+                encounterBomb(board, zombies, alien, 0, "alien");
+
+                pf::Pause();
+                displayAllStats(board, alien, zombies, totalZomb);
+                continue;
             }
 
             else if (alien.getObjInFront(board) == '1' ||
@@ -1105,7 +1253,6 @@ void zombieTurn(Board &board, Alien &alien, vector<Zombie> &zombies, int totalZo
     while (validDir == false) {
         zombies[turn].changeDir(dir[rand() % 4]);
 
-        // !! ADD !! make zombie avoid other zombies
         if (zombies[turn].withinBorders(board) == true &&
             zombies[turn].getObjInFront(board) != 'A' &&
             zombies[turn].getObjInFront(board) != '1' &&
@@ -1124,6 +1271,10 @@ void zombieTurn(Board &board, Alien &alien, vector<Zombie> &zombies, int totalZo
         }
         else
             continue;
+    }
+
+    if (zombies[turn].getObjInFront(board) == 'b') {
+        encounterBomb(board, zombies, alien, turn, "zombie");
     }
 
     zombies[turn].move(board, zombies[turn].getDir(), turn);
@@ -1322,17 +1473,17 @@ int main()
         }
 
         while (true) {
-            char confirmRestart;
+            string confirmRestart;
             cout << "Play again (y/n)? => ";
             cin >> confirmRestart;
 
-            switch (confirmRestart)
-            {
-            case 'y':
+            if (confirmRestart == "y") {
+                system("cls");
                 break;
-            case 'n':
+            }
+            else if (confirmRestart == "n")
                 exit(0);
-            default:
+            else {
                 cout << "Please enter a valid command." << endl;
                 continue;
             }
