@@ -258,7 +258,7 @@ public:
     void changeDir(string dir);
 
     bool withinBorders(Board &board);
-    char getObjInFront(Board &board);
+    char getAdjacentObj(Board &board, string dir);
     void displayStats();
     void spawnZombie(Board &board, char index);
 };
@@ -353,14 +353,14 @@ bool Zombie::withinBorders(Board &board) {
     return 0;
 }
 
-char Zombie::getObjInFront(Board &board) {
-    if (direction_ == "up")
+char Zombie::getAdjacentObj(Board &board, string dir) {
+    if (dir == "up")
         return board.getObject(x_, y_ + 1);
-    else if (direction_ == "down")
+    else if (dir == "down")
         return board.getObject(x_, y_ - 1);
-    else if (direction_ == "left")
+    else if (dir == "left")
         return board.getObject(x_ - 1, y_);
-    else if (direction_ == "right")
+    else if (dir == "right")
         return board.getObject(x_ + 1, y_);
 
     return 0;
@@ -743,17 +743,8 @@ void encounterRock(Board &board, Alien &alien) {
         break;
     
     case '^':
-        cout << "n arrow";
-        break;
-        
     case 'v':
-        cout << "n arrow";
-        break;
-
     case '<':
-        cout << "n arrow";
-        break;
-        
     case '>':
         cout << "n arrow";
         break;
@@ -836,21 +827,12 @@ void encounterBomb(Board &board, vector<Zombie> &zombies, Alien alien, int zombI
                 continue;
 
             case '^':
-                board.setObject(i, j, ' ');
-                continue;
             case 'v':
-                board.setObject(i, j, ' ');
-                continue;
             case '<':
-                board.setObject(i, j, ' ');
-                continue;
             case '>':
-                board.setObject(i, j, ' ');
-                continue;
             case 'h':
-                board.setObject(i, j, ' ');
-                continue;
             case 'p':
+            case 'b':
                 board.setObject(i, j, ' ');
                 continue;
 
@@ -869,17 +851,8 @@ void encounterBomb(Board &board, vector<Zombie> &zombies, Alien alien, int zombI
                     break;
                 
                 case '^':
-                    cout << "n arrow";
-                    break;
-                    
                 case 'v':
-                    cout << "n arrow";
-                    break;
-
                 case '<':
-                    cout << "n arrow";
-                    break;
-                    
                 case '>':
                     cout << "n arrow";
                     break;
@@ -896,12 +869,9 @@ void encounterBomb(Board &board, vector<Zombie> &zombies, Alien alien, int zombI
                     cout << " bomb";
                     break;
                 }
-                cout <<  " was discovered beneath the rock." << endl;
+                cout <<  " was discovered beneath the rock." << endl << endl;
                 continue;
             }
-
-            case 'b':
-                continue;
 
             default:
                 continue;
@@ -1063,7 +1033,6 @@ int loadFile(Board &board, Alien &alien, vector<Zombie> &zombies, int totalZomb)
             fin >> dimX >> dimY;
             board.init(dimX, dimY);
 
-            // !! FIX !! can't read blank spaces
             // reads object in each coordinate
             for (int i = 1; i <= dimX; i++) {
                 for (int j = 1; j <= dimY; j++) {
@@ -1248,7 +1217,6 @@ void commands(string cmd, Board &board, Alien &alien, vector<Zombie> &zombies, i
         pf::Pause();
     }
 
-    // !! ADD !! save function
     else if (cmd == "save") {
         saveFile(board, alien, zombies, totalZomb);
         pf::Pause();
@@ -1297,16 +1265,16 @@ void zombieTurn(Board &board, Alien &alien, vector<Zombie> &zombies, int totalZo
         zombies[turn].changeDir(dir[rand() % 4]);
 
         if (zombies[turn].withinBorders(board) == true &&
-            zombies[turn].getObjInFront(board) != 'A' &&
-            zombies[turn].getObjInFront(board) != '1' &&
-            zombies[turn].getObjInFront(board) != '2' &&
-            zombies[turn].getObjInFront(board) != '3' &&
-            zombies[turn].getObjInFront(board) != '4' &&
-            zombies[turn].getObjInFront(board) != '5' &&
-            zombies[turn].getObjInFront(board) != '6' &&
-            zombies[turn].getObjInFront(board) != '7' &&
-            zombies[turn].getObjInFront(board) != '8' &&
-            zombies[turn].getObjInFront(board) != '9') {
+            zombies[turn].getAdjacentObj(board, zombies[turn].getDir()) != 'A' &&
+            zombies[turn].getAdjacentObj(board, zombies[turn].getDir()) != '1' &&
+            zombies[turn].getAdjacentObj(board, zombies[turn].getDir()) != '2' &&
+            zombies[turn].getAdjacentObj(board, zombies[turn].getDir()) != '3' &&
+            zombies[turn].getAdjacentObj(board, zombies[turn].getDir()) != '4' &&
+            zombies[turn].getAdjacentObj(board, zombies[turn].getDir()) != '5' &&
+            zombies[turn].getAdjacentObj(board, zombies[turn].getDir()) != '6' &&
+            zombies[turn].getAdjacentObj(board, zombies[turn].getDir()) != '7' &&
+            zombies[turn].getAdjacentObj(board, zombies[turn].getDir()) != '8' &&
+            zombies[turn].getAdjacentObj(board, zombies[turn].getDir()) != '9') {
 
             validDir = true;
             break;
@@ -1315,7 +1283,7 @@ void zombieTurn(Board &board, Alien &alien, vector<Zombie> &zombies, int totalZo
             continue;
     }
 
-    if (zombies[turn].getObjInFront(board) == 'b') {
+    if (zombies[turn].getAdjacentObj(board, zombies[turn].getDir()) == 'b') {
         zombies[turn].move(board, zombies[turn].getDir(), turn);
         cout << "Zombie " << turn + 1 << " moves " << zombies[turn].getDir() << "." << endl << endl;
 
@@ -1445,7 +1413,7 @@ int main()
         int alienY = (board.getDimY() + 1) / 2;
         int alienLife = 100 + (rand() % (150 - 100 + 1));
 
-        alien.init(alienX, alienY, alienLife, 0, "up");
+        alien.init(alienX, alienY, alienLife, 150, "up");
         alien.spawnAlien(board);
 
         //start of alien's turn
