@@ -10,6 +10,7 @@
 
 #include "pf/helper.h"
 #include <iostream>
+#include <fstream>
 #include <cstdlib> // for system()
 #include <iomanip> // for setw()
 #include <vector>
@@ -252,8 +253,12 @@ public:
     void decreaseLife(int life);
     
     void move(Board&board, string dir, int index);
+    void changeX(int x);
+    void changeY(int y);
     void changeDir(string dir);
 
+    bool withinBorders(Board &board);
+    char getObjInFront(Board &board);
     void displayStats();
     void spawnZombie(Board &board, char index);
 };
@@ -318,17 +323,51 @@ void Zombie::move(Board &board, string dir, int index) {
     board.setObject(x_, y_, zomb);
 }
 
+void Zombie::changeX(int x) {
+    x_ = x;
+}
+
+void Zombie::changeY(int y) {
+    y_ = y;
+}
+
 void Zombie::changeDir(string dir) {
     direction_ = dir;
 }
 
+// returns true if space in front of zombie is within the map borders
+// returns false if space in front of zombie is not within map borders
+bool Zombie::withinBorders(Board &board) {
+    if (direction_ == "up")
+        return board.isInsideMap(x_, y_ + 1);
+    else if (direction_ == "down")
+        return board.isInsideMap(x_, y_ - 1);
+    else if (direction_ == "left")
+        return board.isInsideMap(x_ - 1, y_);
+    else if (direction_ == "right")
+        return board.isInsideMap(x_ + 1, y_);
+
+    return 0;
+}
+
+char Zombie::getObjInFront(Board &board) {
+    if (direction_ == "up")
+        return board.getObject(x_, y_ + 1);
+    else if (direction_ == "down")
+        return board.getObject(x_, y_ - 1);
+    else if (direction_ == "left")
+        return board.getObject(x_ - 1, y_);
+    else if (direction_ == "right")
+        return board.getObject(x_ + 1, y_);
+
+    return 0;
+}
+
 void Zombie::displayStats() {
-    cout << "Life " << life_ << ", Attack " << atk_ << ", Range " << range_ << endl;
+    cout << x_ << ", " << y_ << ", " << "Life " << life_ << ", Attack " << atk_ << ", Range " << range_ << endl;
 }
 
 void Zombie::spawnZombie(Board &board, char index) {
-    // x_ = rand() % (board.getDimX()) + 1;
-    // y_ = rand() % (board.getDimY()) + 1;
     board.setObject(x_, y_, index);
 }
 
@@ -575,7 +614,6 @@ bool gameSettings() {
 }
 
 void displayAllStats(Board &board, Alien&alien, vector<Zombie> &zombies, int totalZomb) {
-    pf::Pause();
     board.display();
 
     cout << "-> ";
@@ -616,6 +654,7 @@ void encounterArrow(Board &board, Alien&alien, vector<Zombie> zombies, int total
     alien.increaseAtk(20);
     alien.move(board, alien.getDir());
 
+    pf::Pause();
     displayAllStats(board, alien, zombies, totalZomb);
     
     switch (object)
@@ -639,23 +678,20 @@ void encounterArrow(Board &board, Alien&alien, vector<Zombie> zombies, int total
 }
 
 void encounterPod(Board &board, vector<Zombie> &zombies, Alien alien, int totalZomb) {
-    alien.move(board, alien.getDir());
+    //alien.move(board, alien.getDir());
 
     int podX = alien.getX();
     int podY = alien.getY();
     
-    int distanceFromPod[totalZomb];
-
-    for (int i = 0; i < totalZomb; i++) {
-        distanceFromPod[i] = abs(zombies[i].getX() - podX) + abs(zombies[i].getY() - podY);
-    }
-
+    int distanceFromPod;
     int smallestDistance = 100;
     int smallestIndex = 0;
 
     for (int i = 0; i < totalZomb; i++) {
-        if (distanceFromPod[i] < smallestDistance) {
-            smallestDistance = distanceFromPod[i];
+        distanceFromPod = abs(zombies[i].getX() - podX) + abs(zombies[i].getY() - podY);
+
+        if (distanceFromPod < smallestDistance) {
+            smallestDistance = distanceFromPod;
             smallestIndex = i;
         }
         else
@@ -745,7 +781,6 @@ void reportObject (Alien &alien, char obj) {
 
     case 'p':
         cout << "Alien finds a pod." << endl << endl;
-        // !! ADD !! code for pod to attack zombies
         break;
 
     case '.':
@@ -787,8 +822,101 @@ void resetTrail(Board &board) {
     }
 }
 
-void alienTurn(Board &board, Alien &alien, vector<Zombie> &zombies) {
+void saveFile(Board &board, Alien &alien, vector<Zombie> &zombies, int totalZomb) {
+    string saveFile;
 
+    cout << "Enter the file name to save the current game: ";
+    cin >> saveFile;
+    
+    ofstream fout(saveFile);
+
+    // board dimensions
+    fout << board.getDimX() << ' '
+         << board.getDimY() << endl;
+
+    // items in each coordinate
+    // saved bottom to top, left to right
+    for (int i = 1; i <= board.getDimX(); i++) {
+        for (int j = 1; j <= board.getDimY(); j++) {
+            fout << board.getObject(i, j) << endl;
+        }
+    }
+
+    // alien stats
+    fout << alien.getLife() << ' '
+         << alien.getAtk() << ' '
+         << alien.getDir() << endl;
+
+    // zombie stats
+    // saved zombie by zombie,
+    // ex. zombie1's x y life atk range
+    //          then only
+    //     zombie2's x y life atk range
+    for (int i = 0; i < totalZomb; i++) {
+        fout << zombies[i].getX() << ' '
+             << zombies[i].getY() << ' '
+             << zombies[i].getLife() << ' '
+             << zombies[i].getAtk() << ' '
+             << zombies[i].getRange() << ' '
+             << zombies[i].getDir() << endl;
+    }
+
+    fout.close();
+
+    cout << "Game Saved" << endl;
+}
+
+void loadFile(Board &board, Alien&alien, vector<Zombie> &zombies, int totalZomb) {
+    char confirmSave;
+
+    cout << "Do you want to save the current game (y/n)? => ";
+    cin >> confirmSave;
+
+    if (confirmSave == 'y')
+        saveFile(board, alien, zombies, totalZomb);
+    
+    string loadFile;
+    cout << "Enter the file name to load: ";
+    cin >> loadFile;
+
+    ifstream fin(loadFile);
+
+    if (fin.is_open()) {
+        while (fin.good()) {
+            // reads board dimensions
+            int dimX, dimY;
+            fin >> dimX >> dimY;
+            board.init(dimX, dimY);
+
+            // !! FIX !! can't read blank spaces
+            // reads object in each coordinate
+            for (int i = 1; i <= dimX; i++) {
+                for (int j = 1; j <= dimY; j++) {
+                    char obj;
+                    fin >> obj;
+                    board.setObject(i, j, obj);
+                }
+            }
+
+            int alienLife, alienAtk, alienDir;
+            fin >> alienLife >> alienAtk >> alienDir;
+
+            int zombX, zombY, zombLife, zombAtk, zombRange;
+            string zombDir;
+            for (int i = 0; i < totalZomb; i++) {
+                fin >> zombX >> zombY >> zombLife >> zombAtk >> zombRange;
+                getline(fin, zombDir, '$');
+
+                Zombie zombie;
+                zombie.init(zombX, zombY, zombLife, zombAtk, zombRange, zombDir);
+                zombies.push_back(zombie);
+            }
+        }
+    }
+    else
+        cout << "Failed to open file." << endl;
+
+    fin.close();
 }
 
 void commands(string cmd, Board &board, Alien &alien, vector<Zombie> &zombies, int totalZomb) {
@@ -799,7 +927,6 @@ void commands(string cmd, Board &board, Alien &alien, vector<Zombie> &zombies, i
 
         while (alien.withinBorders(board)) {
             cout << endl;
-            cout << alien.getDir() << endl;
             reportObject(alien, alien.getObjInFront(board));
 
             if (alien.getObjInFront(board) == 'h' ||
@@ -807,9 +934,8 @@ void commands(string cmd, Board &board, Alien &alien, vector<Zombie> &zombies, i
                 alien.getObjInFront(board) == '.') { 
 
                 alien.move(board, alien.getDir());
-
+                pf::Pause();
                 displayAllStats(board, alien, zombies, totalZomb);
-
                 continue;
             }
 
@@ -823,7 +949,10 @@ void commands(string cmd, Board &board, Alien &alien, vector<Zombie> &zombies, i
             }
 
             else if (alien.getObjInFront(board) == 'p') {
+                alien.move(board, alien.getDir());
                 encounterPod(board, zombies, alien, totalZomb);
+                pf::Pause();
+                displayAllStats(board, alien, zombies, totalZomb);
                 continue;
             }
 
@@ -832,11 +961,20 @@ void commands(string cmd, Board &board, Alien &alien, vector<Zombie> &zombies, i
                 break;
             }
 
-            else if (49 <= alien.getObjInFront(board) <= 57) {
+            else if (alien.getObjInFront(board) == '1' ||
+                     alien.getObjInFront(board) == '2' ||
+                     alien.getObjInFront(board) == '3' ||
+                     alien.getObjInFront(board) == '4' ||
+                     alien.getObjInFront(board) == '5' ||
+                     alien.getObjInFront(board) == '6' ||
+                     alien.getObjInFront(board) == '7' ||
+                     alien.getObjInFront(board) == '8' ||
+                     alien.getObjInFront(board) == '9') {
                 encounterZombie(board, zombies, alien, alien.getObjInFront(board));
 
                 int zombIndex = alien.getObjInFront(board) - 49;
 
+                pf::Pause();
                 displayAllStats(board, alien, zombies, totalZomb);
 
                 if (zombies[zombIndex].getLife() > 0)
@@ -844,29 +982,35 @@ void commands(string cmd, Board &board, Alien &alien, vector<Zombie> &zombies, i
                 else if (zombies[zombIndex].getLife() == 0)
                     continue;
             }
-
+            pf::Pause();
             displayAllStats(board, alien, zombies, totalZomb);
         }
         if (!alien.withinBorders(board))
-            cout << endl << "Alien has hit a border." << endl << endl;
+            cout << endl << "Alien has hit a border." << endl;
     }
 
     else if (cmd == "arrow") {
         int arrowX, arrowY;
         char newArrow;
+        char objAtCoords;
         string arrowDir;
-        cout << "Enter row, column, and direction: ";
-        cin >> arrowY >> arrowX >> arrowDir;
 
-        // !! ADD !! exception for if arrow coordinates are more than the dimensions
+        while (true) {
+            cout << "Enter row, column, and direction: ";
+            cin >> arrowY >> arrowX >> arrowDir;
 
-        char objAtCoords = board.getObject(arrowX, arrowY);
+            if (arrowX < 1 || arrowX > board.getDimX() ||
+                arrowY < 1 || arrowY > board.getDimY()) {
+                cout << "Invalid row and column. Please enter valid coordinates." << endl;
+                continue;
+            }
 
-        if (objAtCoords != '^' && objAtCoords != 'v' &&
-            objAtCoords != '<' && objAtCoords != '>')
-            cout << "The object at this coordinate is not an arrow." << endl;
-        else {
-            while (true) {
+            objAtCoords = board.getObject(arrowX, arrowY);
+
+            if (objAtCoords != '^' && objAtCoords != 'v' &&
+                objAtCoords != '<' && objAtCoords != '>')
+                cout << "The object at this coordinate is not an arrow." << endl;
+            else {
                 if (arrowDir == "up") {
                     newArrow = '^';
                     break;
@@ -884,14 +1028,16 @@ void commands(string cmd, Board &board, Alien &alien, vector<Zombie> &zombies, i
                     break;
                 }
                 else {
-                    cout << "Invalid input. Please type either up/down/left/right.";
+                    cout << "Invalid input. Please type either up/down/left/right." << endl;
                     continue;
                 }
             }
-            // change the arrow direction
-            board.setObject(arrowX, arrowY, newArrow);
         }
+        // change the arrow direction
+        board.setObject(arrowX, arrowY, newArrow);
+
         cout << "Arrow " << objAtCoords << " is switched to " << newArrow << "." << endl;
+        pf::Pause();
     }
 
     else if (cmd == "help") {
@@ -904,16 +1050,17 @@ void commands(string cmd, Board &board, Alien &alien, vector<Zombie> &zombies, i
         cout << "save   - Save the current game to a file." << endl;
         cout << "load   - Load a saved game from a file." << endl;
         cout << "quit   - Quit the game while still in play." << endl;
+        pf::Pause();
     }
 
     // !! ADD !! save function
     else if (cmd == "save") {
-
+        saveFile(board, alien, zombies, totalZomb);
     }
 
     // !! ADD !! load function
     else if (cmd == "load") {
-
+        loadFile(board, alien, zombies, totalZomb);
     }
 
     else if (cmd == "quit") {
@@ -928,6 +1075,7 @@ void commands(string cmd, Board &board, Alien &alien, vector<Zombie> &zombies, i
                 break;
             else {
                 cout << "Please enter a valid command.";
+                pf::Pause();
                 continue;
             }
         }
@@ -935,9 +1083,8 @@ void commands(string cmd, Board &board, Alien &alien, vector<Zombie> &zombies, i
 
     else {
         cout << "Please enter a valid command." << endl;
+        pf::Pause();
     }
-
-    pf::Pause();
 }
 
 void zombieTurn(Board &board, Alien &alien, vector<Zombie> &zombies, int totalZomb, int turn) {
@@ -955,24 +1102,23 @@ void zombieTurn(Board &board, Alien &alien, vector<Zombie> &zombies, int totalZo
     string dir[4] = {"up", "down", "left", "right"};
     bool validDir = false;
 
-    int zombX = zombies[turn].getX();
-    int zombY = zombies[turn].getY();
-
     while (validDir == false) {
         zombies[turn].changeDir(dir[rand() % 4]);
 
-        if (zombies[turn].getDir() == "up")
-            zombY += 1;
-        else if (zombies[turn].getDir() == "down")
-            zombY -= 1;
-        else if (zombies[turn].getDir() == "left")
-            zombX -= 1;
-        else if (zombies[turn].getDir() == "right")
-            zombX += 1;
-
         // !! ADD !! make zombie avoid other zombies
-        if (board.isInsideMap(zombX, zombY) == true &&
-            board.getObject(zombX, zombY) != 'A') {
+        if (zombies[turn].withinBorders(board) == true &&
+            zombies[turn].getObjInFront(board) != 'A' &&
+            zombies[turn].getObjInFront(board) != '1' &&
+            zombies[turn].getObjInFront(board) != '2' &&
+            zombies[turn].getObjInFront(board) != '3' &&
+            zombies[turn].getObjInFront(board) != '4' &&
+            zombies[turn].getObjInFront(board) != '5' &&
+            zombies[turn].getObjInFront(board) != '6' &&
+            zombies[turn].getObjInFront(board) != '7' &&
+            zombies[turn].getObjInFront(board) != '8' &&
+            zombies[turn].getObjInFront(board) != '9') {
+
+            cout << zombies[turn].getObjInFront(board) << endl;
             validDir = true;
             break;
         }
@@ -982,7 +1128,7 @@ void zombieTurn(Board &board, Alien &alien, vector<Zombie> &zombies, int totalZo
 
     zombies[turn].move(board, zombies[turn].getDir(), turn);
     
-    cout << "Zombie " << turn + 1 << " moves " << zombies[turn].getDir() << "." << endl;
+    cout << "Zombie " << turn + 1 << " moves " << zombies[turn].getDir() << "." << endl << endl;
 
     pf::Pause();
 
@@ -1038,24 +1184,20 @@ void zombieTurn(Board &board, Alien &alien, vector<Zombie> &zombies, int totalZo
 
 int main()
 {
-    // cout << "Assignment (Part 1)" << endl;
-    // cout << "Let's Get Started!" << endl;
-    // pf::Pause();
+    while (true) {
+        Board board;
 
-    Board board;
+        int totalZomb = 1;
 
-    int totalZomb = 1;
+        if (gameSettings() == true) {
+            board.init(boardSetX(), boardSetY());
+            totalZomb = zombSettings();
+        }
 
-    if (gameSettings() == true) {
-        board.init(boardSetX(), boardSetY());
-        totalZomb = zombSettings();
-    }
+        vector<Zombie> zombies;
 
-    vector<Zombie> zombies;
-
-    for (int i = 0; i < totalZomb; i++) {
-        //randomize values
-        int x     = rand() % (board.getDimY()) + 1;
+        //initializes firt zombie
+        int x     = rand() % (board.getDimX()) + 1;
         int y     = rand() % (board.getDimY()) + 1;
         int life  = 100 + (rand() % (150 - 100 + 1));
         int atk   = 5 + (rand() % (15 - 5 + 1));
@@ -1064,96 +1206,139 @@ int main()
         Zombie zombie;
         zombie.init(x, y, life, atk, range, "up");
         zombies.push_back(zombie);
-    }
 
-    //49 is the ascii value for '1'
-    for (int i = 0; i < totalZomb; i++) {
-        char zombNumb = i + 49;
-        zombies[i].spawnZombie(board, zombNumb);
-    }
+        char zombNumb = 49;
+        zombies[0].spawnZombie(board, zombNumb);
 
-    Alien alien;
+        //initializes all other zombies
+        for (int j = 1; j < totalZomb; j++) {
+            int x     = rand() % (board.getDimX()) + 1;
+            int y     = rand() % (board.getDimY()) + 1;
+            int life  = 100 + (rand() % (150 - 100 + 1));
+            int atk   = 5 + (rand() % (15 - 5 + 1));
+            int range = 1 + (rand() % (3 - 1 + 1));
 
-    int alienX = (board.getDimX() + 1) / 2;
-    int alienY = (board.getDimY() + 1) / 2;
-    int alienLife = 100 + (rand() % (150 - 100 + 1));
+            Zombie zombie;
+            zombie.init(x, y, life, atk, range, "up");
+            zombies.push_back(zombie);
 
-    alien.init(alienX, alienY, alienLife, 0, "up");
-    alien.spawnAlien(board);
+            //makes sure zombie does not spawn in a space occupied by alien/other zombies
+            char attemptedCoordinate = board.getObject(zombies[j].getX(), zombies[j].getY());
 
-    while (true) {
-        board.display();
+            while (attemptedCoordinate != '^' &&
+                    attemptedCoordinate != 'v' &&
+                    attemptedCoordinate != '<' &&
+                    attemptedCoordinate != '>' &&
+                    attemptedCoordinate != 'h' &&
+                    attemptedCoordinate != 'p' &&
+                    attemptedCoordinate != 'r' &&
+                    attemptedCoordinate != ' ') {
 
-        cout << "-> ";
-        alien.displayStats();
+                zombies[j].changeX(rand() % (board.getDimX()) + 1);
+                zombies[j].changeY(rand() % (board.getDimY()) + 1);
 
-        for (int i = 0; i < totalZomb; i++) {
-            cout << "   ";
-            cout << "Zombie " << i + 1 << " : ";
-            zombies[i].displayStats();
+                break;
+            }
+            char zombNumb = j + 49;
+            zombies[j].spawnZombie(board, zombNumb);
         }
 
-        cout << endl;
+        Alien alien;
 
+        int alienX = (board.getDimX() + 1) / 2;
+        int alienY = (board.getDimY() + 1) / 2;
+
+        alien.init(alienX, alienY, 100, 0, "up");
+        alien.spawnAlien(board);
+
+        //start of alien's turn
         while (true) {
-        string cmd;
-        cout << "<command> ";
-        cin >> cmd;
-
-        if (cmd == "arrow" || cmd == "help" || cmd == "save" ||
-            cmd == "load" || cmd == "quit") {
-            commands(cmd, board, alien, zombies, totalZomb);
-
-            board.display();
-
-            cout << "-> ";
-            alien.displayStats();
-
-            for (int i = 0; i < totalZomb; i++) {
-                cout << "   ";
-                cout << "Zombie " << i + 1 << " : ";
-                zombies[i].displayStats();
-            }
+            displayAllStats(board, alien, zombies, totalZomb);
 
             cout << endl;
 
-            continue;
+            // runs command()
+            while (true) {
+                string cmd;
+                cout << "<command> ";
+                cin >> cmd;
+
+                if (cmd != "up" && cmd != "down" &&
+                    cmd != "left" && cmd != "right") {
+                    commands(cmd, board, alien, zombies, totalZomb);
+
+                    displayAllStats(board, alien, zombies, totalZomb);
+
+                    cout << endl;
+
+                    continue;
+                    }
+                else {
+                    commands(cmd, board, alien, zombies, totalZomb);
+                    break;
+                }
             }
-        else { //starts alien's turn
-            commands(cmd, board, alien, zombies, totalZomb);
-            break;
+
+            resetTrail(board);
+
+            alien.decreaseAtk(alien.getAtk());
+            cout << endl << "Alien's turn ends. The trail has been reset." << endl << endl;
+
+            pf::Pause();
+            displayAllStats(board, alien, zombies, totalZomb);
+
+            int totalZombLife;
+
+            for (int i = 0; i < totalZomb; i++) {
+                totalZombLife += zombies[i].getLife();
+            }
+
+            cout << totalZombLife << endl;
+
+            if (totalZombLife == 0) {
+                displayAllStats(board, alien, zombies, totalZomb);
+                cout << endl << "Alien wins." << endl;
+                break;
+            }
+
+            //start of zombie's turn
+            for (int i = 0; i < totalZomb; i++) {
+                board.display();
+
+                cout << "   ";
+                alien.displayStats();
+
+                if (zombies[i].getLife() > 0)
+                    zombieTurn(board, alien, zombies, totalZomb, i);
+                else
+                    continue;
+            }
+
+            //after zombie's turn, check if alien is still alive
+            if (alien.getLife() == 0) {
+                cout << "Zombie wins." << endl;
+                break;
+            }
+            else
+                continue;
         }
 
+        while (true) {
+            char confirmRestart;
+            cout << "Play again (y/n)? => ";
+            cin >> confirmRestart;
+
+            switch (confirmRestart)
+            {
+            case 'y':
+                break;
+            case 'n':
+                exit(0);
+            default:
+                cout << "Please enter a valid command." << endl;
+                continue;
+            }
         }
-
-        resetTrail(board);
-
-        board.display();
-
-        cout << "-> ";
-        alien.displayStats();
-
-        for (int i = 0; i < totalZomb; i++) {
-            cout << "   ";
-            cout << "Zombie " << i + 1 << " : ";
-            zombies[i].displayStats();
-        }
-        cout << endl;
-
-        alien.decreaseAtk(alien.getAtk());
-        cout << "Alien's turn ends. The trail has been reset." << endl << endl;
-
-        pf::Pause();
-
-        for (int i = 0; i < totalZomb; i++) {
-            board.display();
-
-            cout << "   ";
-            alien.displayStats();
-
-            zombieTurn(board, alien, zombies, totalZomb, i);
-        }
+        continue;
     }
-
-    cout << "Game Over!" << endl;
 }
